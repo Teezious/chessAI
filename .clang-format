@@ -1,0 +1,18 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+
+Language: Cpp
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+
+AllowShortFunctionsOnASingleLine: None
+
+BreakBeforeBraces: Custom
+BreakConstructorInitializers: AfterColon
+BraceWrapping:
+    BeforeElse: true
+    BeforeCatch: true
+
+ColumnLimit: 120
+
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
