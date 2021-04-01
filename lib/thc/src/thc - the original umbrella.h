@@ -7,11 +7,10 @@
 #ifndef THC_H
 #define THC_H
 
-#include "Portability.h"
-#include "Move.h"
+#include "ChessEvaluation.h"
 #include "ChessPosition.h"
 #include "ChessRules.h"
-#include "ChessEvaluation.h"
+#include "Move.h"
+#include "Portability.h"
 
 #endif // THC_H
-

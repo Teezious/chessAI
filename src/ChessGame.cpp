@@ -12,22 +12,27 @@
 using namespace std;
 using ChessPlayerPtr = std::shared_ptr<AbstractChessPlayer>;
 
-void ChessGame::gameHandler() {
+void ChessGame::gameHandler()
+{
     ChessPlayerPtr whitePlayer = nullptr;
     ChessPlayerPtr blackPlayer = nullptr;
-    while (true) {
+    while(true)
+    {
         string userColorChoice = "white"; // TODO change back
         // cout << "Enter your color(white/black): ";
         // getline(cin, userColorChoice);
-        transform(userColorChoice.begin(), userColorChoice.end(), userColorChoice.begin(), ::tolower);
-        if(userColorChoice.compare("black") == 0) {
-            whitePlayer = ChessPlayerPtr (new ChessAI(true));
-            blackPlayer = ChessPlayerPtr (new HumanChessPlayer(false));
+        transform(userColorChoice.begin(), userColorChoice.end(), userColorChoice.begin(),
+                  ::tolower);
+        if(userColorChoice.compare("black") == 0)
+        {
+            whitePlayer = ChessPlayerPtr(new ChessAI(true));
+            blackPlayer = ChessPlayerPtr(new HumanChessPlayer(false));
             break;
         }
-        else if(userColorChoice.compare("white") == 0) {
-            blackPlayer = ChessPlayerPtr (new ChessAI(false));
-            whitePlayer = ChessPlayerPtr (new HumanChessPlayer(true));
+        else if(userColorChoice.compare("white") == 0)
+        {
+            blackPlayer = ChessPlayerPtr(new ChessAI(false));
+            whitePlayer = ChessPlayerPtr(new HumanChessPlayer(true));
             break;
         }
         else
@@ -38,17 +43,20 @@ void ChessGame::gameHandler() {
     string move;
     thc::Move mv;
 
-    while(1) {
+    while(1)
+    {
         printBoardState();
 
-        if(whitesMove) {
+        if(whitesMove)
+        {
             move = whitePlayer->chooseMove(board);
         }
-        else {
+        else
+        {
             move = blackPlayer->chooseMove(board);
         }
         cout << move << endl;
-        //TODO check legal move
+        // TODO check legal move
         mv.TerseIn(&board, move.c_str());
         board.PlayMove(mv);
         thc::TERMINAL evalPosition;
@@ -56,8 +64,7 @@ void ChessGame::gameHandler() {
         bool mateWhite = (evalPosition == thc::TERMINAL_WCHECKMATE);
         bool mateBlack = (evalPosition == thc::TERMINAL_BCHECKMATE);
 
-
-        //check mate, stalemate
+        // check mate, stalemate
         if(mateBlack || mateWhite)
             break;
 
@@ -65,16 +72,18 @@ void ChessGame::gameHandler() {
     }
     string winner = whitesMove ? "White" : "Black";
     cout << winner << " won" << endl;
-    //Todo delete
+    // Todo delete
 }
 
-//temporary function
-void ChessGame::printBoardState() {
+// temporary function
+void ChessGame::printBoardState()
+{
     string boardString = this->board.ToDebugStr();
     int i = 0;
-    for(char c : boardString) {
+    for(char c : boardString)
+    {
         if(i % 9 == 0)
-            cout << "  +---+---+---+---+---+---+---+---+" << endl << " " << ((72 - i)  / 9) << " ";
+            cout << "  +---+---+---+---+---+---+---+---+" << endl << " " << ((72 - i) / 9) << " ";
         cout << "| " << c << " ";
         i++;
     }

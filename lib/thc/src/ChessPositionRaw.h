@@ -12,7 +12,6 @@
 // TripleHappyChess
 namespace thc
 {
-
 // ChessPositionRaw - A complete representation of the position on the
 //  board. Corresponds broadly to fields of Forsyth representation
 struct ChessPositionRaw
@@ -30,31 +29,31 @@ struct ChessPositionRaw
     //     "PPPPPPPP"
     //     "RNBQKBNR"
     //  (represents starting position)
-    char squares[64 +1]; // +1 allows a trailing '\0'
+    char squares[64 + 1]; // +1 allows a trailing '\0'
     // note indexed according to Square convention, a8=0 etc.
 
     // Half moves since pawn move or capture (for 50 move rule)
     //  eg after 1.e4 it's 0
-    int  half_move_clock;
+    int half_move_clock;
 
     // Full move count. Initially 1 and increments after black moves
     //  eg after 1.e4 it's 1
     //  eg after 1... d6 it's 2
-    int  full_move_count;
+    int full_move_count;
 
     // The following are deemed "details", and must be stored at the
     //  end of the structure. Search for DETAIL for, ahem, details.
     //  For performance reasons we want the details to be able to fit
     //  into 32 bits.
     Square enpassant_target : 8;
-    Square wking_square     : 8;
-    Square bking_square     : 8;
-    unsigned int  wking     : 1;    // Castling still allowed flags
-    unsigned int  wqueen    : 1;    //  unfortunately if the castling
-    unsigned int  bking     : 1;    //  flags are declared as bool,
-    unsigned int  bqueen    : 1;    //  with Visual C++ at least,
-                                    //  the details blow out and use
-                                    //  another 32 bits (??!!)
+    Square wking_square : 8;
+    Square bking_square : 8;
+    unsigned int wking : 1; // Castling still allowed flags
+    unsigned int wqueen : 1; //  unfortunately if the castling
+    unsigned int bking : 1; //  flags are declared as bool,
+    unsigned int bqueen : 1; //  with Visual C++ at least,
+                             //  the details blow out and use
+                             //  another 32 bits (??!!)
     // Note that for say white king side castling to be allowed in
     //  in the same sense as the Forsyth representation, not only
     //  must wking be true, but the  white king and king rook must
@@ -63,6 +62,6 @@ struct ChessPositionRaw
     //  == operator.
 };
 
-} //namespace thc
+} // namespace thc
 
-#endif //CHESSPOSITIONRAW_H
+#endif // CHESSPOSITIONRAW_H

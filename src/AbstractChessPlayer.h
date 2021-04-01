@@ -8,12 +8,22 @@
 
 #include <string>
 
-class AbstractChessPlayer {
+class AbstractChessPlayer
+{
   public:
-    AbstractChessPlayer(bool isWhite) {this->isWhite = isWhite; }
+    AbstractChessPlayer(bool isWhite)
+    {
+        this->isWhite = isWhite;
+    }
 
-    bool getIsWhite() { return isWhite; }
-    void setIsWhite(bool isWhite) { this->isWhite = isWhite; }
+    bool getIsWhite()
+    {
+        return isWhite;
+    }
+    void setIsWhite(bool isWhite)
+    {
+        this->isWhite = isWhite;
+    }
 
     virtual std::string chooseMove(thc::ChessRules board) = 0;
 

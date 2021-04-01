@@ -10,15 +10,16 @@
 
 #define SEARCH_DEPTH 5
 
-class ChessAI : public AbstractChessPlayer {
+class ChessAI : public AbstractChessPlayer
+{
   public:
-    ChessAI(bool isWhite) : AbstractChessPlayer(isWhite) { };
+    ChessAI(bool isWhite) : AbstractChessPlayer(isWhite){};
 
     std::string chooseMove(thc::ChessRules board);
 
   protected:
   private:
-    int minMax(thc::ChessRules &board, const int depth, bool maximize, int alpha, int beta);
+    int minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta);
 };
 
 #endif // CHESSAI_CHESSAI_H

@@ -6,9 +6,10 @@
 #include "AbstractChessPlayer.h"
 #include <iostream>
 
-class HumanChessPlayer : public AbstractChessPlayer {
+class HumanChessPlayer : public AbstractChessPlayer
+{
   public:
-    HumanChessPlayer(bool isWhite) : AbstractChessPlayer(isWhite) { };
+    HumanChessPlayer(bool isWhite) : AbstractChessPlayer(isWhite){};
 
     std::string chooseMove(thc::ChessRules board);
 };

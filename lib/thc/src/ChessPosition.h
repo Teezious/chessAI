@@ -6,42 +6,43 @@
  ****************************************************************************/
 #ifndef CHESSPOSITION_H
 #define CHESSPOSITION_H
-#include <string>
+#include "ChessPositionRaw.h"
 #include <stddef.h>
 #include <string.h>
-#include "ChessPositionRaw.h"
+#include <string>
 
 // TripleHappyChess
 namespace thc
 {
-    class Move;
+class Move;
 
 // ChessPosition - A complete representation of the position on the
 //  board.
 class ChessPosition : public ChessPositionRaw
 {
-public:
-
+  public:
     // Default constructor
-    ChessPosition()  { Init(); }
-    virtual ~ChessPosition()  {}    // destructor not actually needed now as
-                                    //  we don't allocate resources in ctor.
+    ChessPosition()
+    {
+        Init();
+    }
+    virtual ~ChessPosition() {} // destructor not actually needed now as
+                                //  we don't allocate resources in ctor.
     void Init()
     {
         white = true;
-        strcpy(squares,
-           "rnbqkbnr"
-           "pppppppp"
-           "        "
-           "        "
-           "        "
-           "        "
-           "PPPPPPPP"
-           "RNBQKBNR" );
+        strcpy(squares, "rnbqkbnr"
+                        "pppppppp"
+                        "        "
+                        "        "
+                        "        "
+                        "        "
+                        "PPPPPPPP"
+                        "RNBQKBNR");
         enpassant_target = SQUARE_INVALID;
-        wking  = true;
+        wking = true;
         wqueen = true;
-        bking  = true;
+        bking = true;
         bqueen = true;
         wking_square = e1;
         bking_square = e8;
@@ -54,20 +55,18 @@ public:
     //  want and is better practice than the old memcpy() versions (which
     //  copy the vtable ptr as well - we don't want that). Thanks to Github
     //  user metiscus for the pull request that fixed this.
-    ChessPosition( const ChessPosition& src ) = default;
-    ChessPosition& operator=( const ChessPosition& src ) = default;
+    ChessPosition(const ChessPosition& src) = default;
+    ChessPosition& operator=(const ChessPosition& src) = default;
 
     // Equality operator
-    bool operator ==( const ChessPosition &other ) const
+    bool operator==(const ChessPosition& other) const
     {
-        return( white == other.white                        &&
-                0 == memcmp( &squares, &other.squares, 64 ) &&
-                groomed_enpassant_target() == other.groomed_enpassant_target()  &&
-                wking_allowed()  == other.wking_allowed()   &&
-                wqueen_allowed() == other.wqueen_allowed()  &&
-                bking_allowed()  == other.bking_allowed()   &&
-                bqueen_allowed() == other.bqueen_allowed()
-             );
+        return (white == other.white && 0 == memcmp(&squares, &other.squares, 64) &&
+                groomed_enpassant_target() == other.groomed_enpassant_target() &&
+                wking_allowed() == other.wking_allowed() &&
+                wqueen_allowed() == other.wqueen_allowed() &&
+                bking_allowed() == other.bking_allowed() &&
+                bqueen_allowed() == other.bqueen_allowed());
     }
 
     // < Operator
@@ -81,34 +80,34 @@ public:
     // deterministic function (what does one position being less than
     // another even mean?) then you'll get subtle errors in your sorts
     // (the voice of bitter experience speaks).
-    bool operator <( const ChessPosition &other ) const
+    bool operator<(const ChessPosition& other) const
     {
-        bool temp = (white==other.white);
-        if( !temp )
+        bool temp = (white == other.white);
+        if(!temp)
             return white;
-        int itemp = memcmp( &squares, &other.squares, 64 );
-        if( itemp != 0 )
-            return( itemp < 0 );
+        int itemp = memcmp(&squares, &other.squares, 64);
+        if(itemp != 0)
+            return (itemp < 0);
         temp = (groomed_enpassant_target() == other.groomed_enpassant_target());
-        if( !temp )
-            return( (int)groomed_enpassant_target() < (int)other.groomed_enpassant_target() );
-        temp = (wking_allowed()  == other.wking_allowed()  );
-        if( !temp )
+        if(!temp)
+            return ((int)groomed_enpassant_target() < (int)other.groomed_enpassant_target());
+        temp = (wking_allowed() == other.wking_allowed());
+        if(!temp)
             return wking_allowed();
-        temp = (wqueen_allowed() == other.wqueen_allowed() );
-        if( !temp )
+        temp = (wqueen_allowed() == other.wqueen_allowed());
+        if(!temp)
             return wqueen_allowed();
-        temp = (bking_allowed()  == other.bking_allowed()  );
-        if( !temp )
+        temp = (bking_allowed() == other.bking_allowed());
+        if(!temp)
             return bking_allowed();
-        temp = (bqueen_allowed() == other.bqueen_allowed() );
-        if( !temp )
+        temp = (bqueen_allowed() == other.bqueen_allowed());
+        if(!temp)
             return bqueen_allowed();
-        return false;   // ==
+        return false; // ==
     }
 
     // Inequality operator
-    bool operator !=( const ChessPosition &other ) const
+    bool operator!=(const ChessPosition& other) const
     {
         bool same = (*this == other);
         return !same;
@@ -121,73 +120,91 @@ public:
     Square groomed_enpassant_target() const
     {
         Square ret = SQUARE_INVALID;
-        if( white && a6<=enpassant_target && enpassant_target<=h6 )
+        if(white && a6 <= enpassant_target && enpassant_target <= h6)
         {
-            bool zap=true;  // zap unless there is a 'P' in place
-            int idx = enpassant_target+8; //idx = SOUTH(enpassant_target)
-            if( enpassant_target>a6 && squares[idx-1]=='P' )
-                zap = false;    // eg a5xb6 ep, through g5xh6 ep
-            if( enpassant_target<h6 && squares[idx+1]=='P' )
-                zap = false;    // eg b5xa6 ep, through h5xg6 ep
-            if( !zap )
+            bool zap = true; // zap unless there is a 'P' in place
+            int idx = enpassant_target + 8; // idx = SOUTH(enpassant_target)
+            if(enpassant_target > a6 && squares[idx - 1] == 'P')
+                zap = false; // eg a5xb6 ep, through g5xh6 ep
+            if(enpassant_target < h6 && squares[idx + 1] == 'P')
+                zap = false; // eg b5xa6 ep, through h5xg6 ep
+            if(!zap)
                 ret = enpassant_target;
         }
-        else if( !white && a3<=enpassant_target && enpassant_target<=h3 )
+        else if(!white && a3 <= enpassant_target && enpassant_target <= h3)
         {
-            bool zap=true;  // zap unless there is a 'p' in place
-            int idx = enpassant_target-8; //idx = NORTH(enpassant_target)
-            if( enpassant_target>a3 && squares[idx-1]=='p' )
-                zap = false;    // eg a4xb3 ep, through g4xh3 ep
-            if( enpassant_target<h3 && squares[idx+1]=='p' )
-                zap = false;    // eg b4xa3 ep, through h4xg3 ep
-            if( !zap )
+            bool zap = true; // zap unless there is a 'p' in place
+            int idx = enpassant_target - 8; // idx = NORTH(enpassant_target)
+            if(enpassant_target > a3 && squares[idx - 1] == 'p')
+                zap = false; // eg a4xb3 ep, through g4xh3 ep
+            if(enpassant_target < h3 && squares[idx + 1] == 'p')
+                zap = false; // eg b4xa3 ep, through h4xg3 ep
+            if(!zap)
                 ret = enpassant_target;
         }
         return ret;
     }
 
     // Castling allowed ?
-    bool wking_allowed()  const { return wking  && squares[e1]=='K' && squares[h1]=='R'; }
-    bool wqueen_allowed() const { return wqueen && squares[e1]=='K' && squares[a1]=='R'; }
-    bool bking_allowed()  const { return bking  && squares[e8]=='k' && squares[h8]=='r'; }
-    bool bqueen_allowed() const { return bqueen && squares[e8]=='k' && squares[a8]=='r'; }
+    bool wking_allowed() const
+    {
+        return wking && squares[e1] == 'K' && squares[h1] == 'R';
+    }
+    bool wqueen_allowed() const
+    {
+        return wqueen && squares[e1] == 'K' && squares[a1] == 'R';
+    }
+    bool bking_allowed() const
+    {
+        return bking && squares[e8] == 'k' && squares[h8] == 'r';
+    }
+    bool bqueen_allowed() const
+    {
+        return bqueen && squares[e8] == 'k' && squares[a8] == 'r';
+    }
 
     // Return true if Positions are the same (including counts)
-    bool CmpStrict( const ChessPosition &other ) const;
+    bool CmpStrict(const ChessPosition& other) const;
 
     // For debug
-    std::string ToDebugStr( const char *label = 0 );
+    std::string ToDebugStr(const char* label = 0);
 
     // Set up position on board from Forsyth string with extensions
     //  return bool okay
-    virtual bool Forsyth( const char *txt );
+    virtual bool Forsyth(const char* txt);
 
     // Publish chess position and supplementary info in forsyth notation
     std::string ForsythPublish();
 
     // Compress a ChessPosition into 24 bytes, return 16 bit hash
-    unsigned short Compress( CompressedPosition &dst ) const;
+    unsigned short Compress(CompressedPosition& dst) const;
 
     // Decompress chess position
-    void Decompress( const CompressedPosition &src );
+    void Decompress(const CompressedPosition& src);
 
     // Calculate a hash value for position (not same as CompressPosition algorithm hash)
     uint32_t HashCalculate();
 
     // Incremental hash value update
-    uint32_t HashUpdate( uint32_t hash_in, Move move );
+    uint32_t HashUpdate(uint32_t hash_in, Move move);
 
     // Calculate a hash value for position (64 bit version)
     uint64_t Hash64Calculate();
 
     // Incremental hash value update (64 bit version)
-    uint64_t Hash64Update( uint64_t hash_in, Move move );
+    uint64_t Hash64Update(uint64_t hash_in, Move move);
 
     // Whos turn is it anyway
-    inline bool WhiteToPlay() const { return white; }
-    void Toggle() { white = !white; }
+    inline bool WhiteToPlay() const
+    {
+        return white;
+    }
+    void Toggle()
+    {
+        white = !white;
+    }
 };
 
-} //namespace thc
+} // namespace thc
 
-#endif //CHESSPOSITION_H
+#endif // CHESSPOSITION_H

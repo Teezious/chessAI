@@ -32,48 +32,55 @@ class ChessRules;
 //
 class Move
 {
-public:
+  public:
     // Move is a lightweight type, it is accomodated in only 32 bits
-    Square  src       : 8;
-    Square  dst       : 8;
-    SPECIAL special   : 8;
-    int     capture   : 8;      // ' ' (empty) if move not a capture
-                                // for some reason Visual C++ 2005 (at least)
-                                // blows sizeof(Move) out to 64 bits if
-                                // capture is defined as char instead of int
+    Square src : 8;
+    Square dst : 8;
+    SPECIAL special : 8;
+    int capture : 8; // ' ' (empty) if move not a capture
+                     // for some reason Visual C++ 2005 (at least)
+                     // blows sizeof(Move) out to 64 bits if
+                     // capture is defined as char instead of int
 
-    bool operator ==(const Move &other) const
+    bool operator==(const Move& other) const
     {
-        return( *((int32_t *)this) == *((int32_t *)(&other)) );
+        return (*((int32_t*)this) == *((int32_t*)(&other)));
     }
 
-    bool operator !=(const Move &other) const
+    bool operator!=(const Move& other) const
     {
-        return( *((int32_t *)this) != *((int32_t *)(&other)) );
+        return (*((int32_t*)this) != *((int32_t*)(&other)));
     }
 
     // Use these sparingly when you need to specifically mark
     //  a move as not yet set up (defined when we got rid of
     //  16 bit FMOVEs, we could always set and test 0 with those)
-    void Invalid()  { src=a8; dst=a8; }
-    bool Valid()    { return src!=a8 || dst!=a8; }
+    void Invalid()
+    {
+        src = a8;
+        dst = a8;
+    }
+    bool Valid()
+    {
+        return src != a8 || dst != a8;
+    }
 
     // Read natural string move eg "Nf3"
     //  return bool okay
-    bool NaturalIn( ChessRules *cr, const char *natural_in );
+    bool NaturalIn(ChessRules* cr, const char* natural_in);
 
     // Read natural string move eg "Nf3"
     //  return bool okay
     // Fast alternative for known good input
-    bool NaturalInFast( ChessRules *cr, const char *natural_in );
+    bool NaturalInFast(ChessRules* cr, const char* natural_in);
 
     // Read terse string move eg "g1f3"
     //  return bool okay
-    bool TerseIn( ChessRules *cr, const char *tmove );
+    bool TerseIn(ChessRules* cr, const char* tmove);
 
     // Convert to natural string
     //  eg "Nf3"
-    std::string NaturalOut( ChessRules *cr );
+    std::string NaturalOut(ChessRules* cr);
 
     // Convert to terse string eg "e7e8q"
     std::string TerseOut();
@@ -82,10 +89,10 @@ public:
 // List of moves
 struct MOVELIST
 {
-    int count;  // number of moves
+    int count; // number of moves
     Move moves[MAXMOVES];
 };
 
-} //namespace thc
+} // namespace thc
 
-#endif //MOVE_H
+#endif // MOVE_H

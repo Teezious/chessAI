@@ -12,56 +12,49 @@
 // TripleHappyChess
 namespace thc
 {
-
-class ChessEvaluation: public ChessRules
+class ChessEvaluation : public ChessRules
 {
-public:
+  public:
     // Default contructor
-    ChessEvaluation() : ChessRules()
-    {
-    }
+    ChessEvaluation() : ChessRules() {}
 
     // Copy constructor
-    ChessEvaluation( const ChessPosition& src ) : ChessRules( src )
-    {
-    }
+    ChessEvaluation(const ChessPosition& src) : ChessRules(src) {}
 
     // Assignment operator
-    ChessEvaluation& operator=( const ChessPosition& src )
+    ChessEvaluation& operator=(const ChessPosition& src)
     {
-        *((ChessRules *)this) = src;
+        *((ChessRules*)this) = src;
         return *this;
     }
 
-
     // Use leaf evaluator to generate a sorted move list
-    void GenLegalMoveListSorted( MOVELIST *list );
-    void GenLegalMoveListSorted( std::vector<Move> &moves );
+    void GenLegalMoveListSorted(MOVELIST* list);
+    void GenLegalMoveListSorted(std::vector<Move>& moves);
 
     // Evaluate a position, leaf node (useful for playing programs)
-    void EvaluateLeaf( int &material, int &positional );
+    void EvaluateLeaf(int& material, int& positional);
 
-// internal stuff
-protected:
-
+    // internal stuff
+  protected:
     // Always some planning before calculating a move
     void Planning();
 
     // Calculate material that side to play can win directly
     int Enprise();
-    int EnpriseWhite();   // fast white to move version
-    int EnpriseBlack();   // fast black to move version
+    int EnpriseWhite(); // fast white to move version
+    int EnpriseBlack(); // fast black to move version
 
-// misc
-private:
+    // misc
+  private:
     bool white_is_better;
     bool black_is_better;
-    int  planning_score_white_pieces;
-    int  planning_score_black_pieces;
-    int  planning_white_piece_pawn_percent;
-    int  planning_black_piece_pawn_percent;
+    int planning_score_white_pieces;
+    int planning_score_black_pieces;
+    int planning_white_piece_pawn_percent;
+    int planning_black_piece_pawn_percent;
 };
 
-} //namespace thc
+} // namespace thc
 
-#endif //CHESSEVALUATION_H
+#endif // CHESSEVALUATION_H

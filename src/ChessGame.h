@@ -8,17 +8,23 @@
 #include "../lib/thc/src/thc.h"
 #include <iostream>
 
-class ChessGame {
+class ChessGame
+{
   public:
-    thc::ChessRules &getBoard() {return board; }
-    void setBoard(thc::ChessRules &board) {this->board = board; }
+    thc::ChessRules& getBoard()
+    {
+        return board;
+    }
+    void setBoard(thc::ChessRules& board)
+    {
+        this->board = board;
+    }
 
     void gameHandler();
     void printBoardState();
 
   private:
     thc::ChessRules board;
-
 };
 
 #endif // CHESSAI_CHESSGAME_H
