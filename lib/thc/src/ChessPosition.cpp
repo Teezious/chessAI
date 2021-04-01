@@ -94,9 +94,9 @@ std::string ChessPosition::ToDebugStr( const char *label )
 {
     std::string s;
     const char *p = squares;
-    if( label )
-        s = label;
-    s += (white ? "\nWhite to move\n" : "\nBlack to move\n");
+    // if( label )
+    //     s = label;
+    // s += (white ? "\nWhite to move\n" : "\nBlack to move\n");
     for( int row=0; row<8; row++ )
     {
         for( int col=0; col<8; col++ )

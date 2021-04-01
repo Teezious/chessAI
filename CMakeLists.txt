@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.0)
 project(chessAI)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -12,6 +12,6 @@ add_executable(chessAI
         src/HumanChessPlayer.cpp
         src/ChessAI.cpp src/Evaluation.cpp src/Evaluation.h)
 
-add_subdirectory("${PROJECT_SOURCE_DIR}/lib/thc-chess-library" EXCLUDE_FROM_ALL)
+add_subdirectory("${PROJECT_SOURCE_DIR}/lib/thc" EXCLUDE_FROM_ALL)
 include_directories(${THC_CHESS_INCLUDE})
 target_link_libraries(chessAI thc_chess_static)

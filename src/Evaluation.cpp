@@ -7,23 +7,22 @@
 #include <iostream>
 using namespace std;
 
-int Evaluation::evaluateBoardState(thc::ChessRules *board) {
-    string boardString = board->ToDebugStr();
-    boardString.erase(0, 15);
+int Evaluation::evaluateBoardState(thc::ChessRules board) {
+    string boardString = board.ToDebugStr();
     int pos = 1;
     int sum = 0;
-    for(char piece:  boardString) {
-        if(&piece == "." || &piece == "\n")
-            continue;
+    for(char& piece :  boardString) {
+            if(piece == '.' || piece == '\n')
+                continue;
 
-        if(islower(piece)) {
-            sum -= whitePieceValues.at(toupper(piece));
-            //TODO add positional Value
-        }
-        else {
-            sum += whitePieceValues.at(piece);
-        }
-        pos++;
+            if(islower(piece)) {
+                sum -= whitePieceValues.at(toupper(piece));
+                //TODO add positional Value
+            }
+            else {
+                sum += whitePieceValues.at(piece);
+            }
+            pos++;
     }
     return sum;
 }
@@ -58,7 +57,7 @@ const std::map<char, std::vector<int>> Evaluation::positionalWhiteValues = {
               -40, -20, 0, 5, 5, 0, -20, -40,
               -50, -40, -30, -30, -30, -30, -40, -50
           }
-    }
+    },
     {'B', {
               -20, -10, -10, -10, -10, -10, -10, -20,
               -10, 5, 0, 0, 0, 0, 5, -10,

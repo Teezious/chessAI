@@ -3,7 +3,7 @@
 //
 
 #include "ChessGame.h"
-#include "thc.h"
+#include "../lib/thc/src/thc.h"
 #include <cstring>
 #include <iostream>
 

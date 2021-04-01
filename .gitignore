@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# custom
+build
+CMakeFiles
+Makefile
+settings.json
+tasks.json
+.*cmake
+.*make

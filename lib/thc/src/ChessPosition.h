@@ -8,6 +8,7 @@
 #define CHESSPOSITION_H
 #include <string>
 #include <stddef.h>
+#include <string.h>
 #include "ChessPositionRaw.h"
 
 // TripleHappyChess
@@ -28,7 +29,7 @@ public:
     void Init()
     {
         white = true;
-        strcpy_s( squares, sizeof(squares),
+        strcpy(squares,
            "rnbqkbnr"
            "pppppppp"
            "        "

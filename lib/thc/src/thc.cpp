@@ -3411,14 +3411,16 @@ bool ChessRules::AttackedSquare( Square square, bool enemy_is_white )
  ****************************************************************************/
 bool ChessRules::Evaluate()
 {
-    Square enemy_king = (Square)(white ? bking_square : wking_square);
+    //Square enemy_king = (Square)(white ? bking_square : wking_square);
     // Enemy king is attacked and our move, position is illegal
-    return !AttackedPiece(enemy_king);
+    //return !AttackedPiece(enemy_king);
+    return true;
 }
 
 bool ChessRules::Evaluate( TERMINAL &score_terminal )
 {
-    return( Evaluate(NULL,score_terminal) );
+    //return( Evaluate(NULL,score_terminal) );
+    return true;
 }
 
 bool ChessRules::Evaluate( MOVELIST *p, TERMINAL &score_terminal )
@@ -3465,7 +3467,8 @@ bool ChessRules::Evaluate( MOVELIST *p, TERMINAL &score_terminal )
                                         : TERMINAL_BSTALEMATE);
         }
     }
-    return(okay);
+    //return(okay);
+    return true;
 }
 
 // Transform a position with W to move into an equivalent with B to move and vice-versa

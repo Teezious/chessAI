@@ -5,7 +5,7 @@
 #ifndef CHESSAI_CHESSGAME_H
 #define CHESSAI_CHESSGAME_H
 
-#include <thc.h>
+#include "../lib/thc/src/thc.h"
 #include <iostream>
 
 class ChessGame {

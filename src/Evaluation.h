@@ -5,12 +5,12 @@
 #ifndef CHESSAI_EVALUATION_H
 #define CHESSAI_EVALUATION_H
 
-#include <thc.h>
+#include "../lib/thc/src/thc.h"
 #include <map>
 
 class Evaluation {
   public:
-    static int evaluateBoardState(thc::ChessRules *board);
+    static int evaluateBoardState(thc::ChessRules board);
 
   private:
     static const std::map<char, int> whitePieceValues;

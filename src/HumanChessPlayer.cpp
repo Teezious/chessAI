@@ -5,7 +5,7 @@
 #include "HumanChessPlayer.h"
 #include <iostream>
 
-std::string HumanChessPlayer::chooseMove(thc::ChessRules *board) {
+std::string HumanChessPlayer::chooseMove(thc::ChessRules board) {
     std::string move;
     std::cout << "Enter your move:";
     std::cin >> move;
