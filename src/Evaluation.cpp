@@ -12,10 +12,12 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
 {
     int pos = 0;
     int sum = 0;
-    for(char& piece : board.squares)
+    for(char piece : board.squares)
     {
-        if(piece == '.' || piece == '\n')
+        if(piece == 32 || piece == '\0') { //skip empty chars
+            pos++;
             continue;
+        }
         if(islower(piece))
         {
             sum -= whitePieceValues.at(toupper(piece));

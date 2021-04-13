@@ -80,16 +80,14 @@ void ChessGame::gameHandler()
 // temporary function
 void ChessGame::printBoardState()
 {
-    string boardString = this->board.ToDebugStr();
     int i = 0;
-    cout << " ";
-    for(char c : boardString)
+    for(char c : board.squares)
     {
-        if(i % 9 == 0)
-            cout << "  +---+---+---+---+---+---+---+---+" << endl << " " << ((72 - i) / 9) << " ";
+        if(i % 8 == 0 && i != 64)
+            cout << "|" << endl << "   +---+---+---+---+---+---+---+---+" << endl << " " << ((64 - i) / 8) << " ";
         cout << "| " << c << " ";
         i++;
     }
-    cout << "  +---+---+---+---+---+---+---+---+" << endl;
+    cout << endl << "   +---+---+---+---+---+---+---+---+" << endl;
     cout << "     a   b   c   d   e   f   g   h " << endl;
 }
