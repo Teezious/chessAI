@@ -14,7 +14,6 @@ class ChessAI : public AbstractChessPlayer
 {
   public:
     ChessAI(bool isWhite) : AbstractChessPlayer(isWhite){};
-
     std::string chooseMove(thc::ChessRules board);
 
   protected:

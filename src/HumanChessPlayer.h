@@ -5,6 +5,7 @@
 #define CHESSAI_HUMANCHESSPLAYER_H
 #include "AbstractChessPlayer.h"
 #include <iostream>
+#include "../lib/thc/src/thc.h"
 
 class HumanChessPlayer : public AbstractChessPlayer
 {

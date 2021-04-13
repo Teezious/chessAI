@@ -49,15 +49,18 @@ void ChessGame::gameHandler()
 
         if(whitesMove)
         {
-            move = whitePlayer->chooseMove(board);
+            do{
+                move = whitePlayer->chooseMove(board);
+            }while(!mv.TerseIn(&board, move.c_str()));
+            
         }
         else
         {
-            move = blackPlayer->chooseMove(board);
+            do{
+                move = blackPlayer->chooseMove(board);
+            }while(!mv.TerseIn(&board, move.c_str()));
         }
         cout << move << endl;
-        // TODO check legal move
-        mv.TerseIn(&board, move.c_str());
         board.PlayMove(mv);
         thc::TERMINAL evalPosition;
         bool legal = board.Evaluate(evalPosition);
@@ -72,7 +75,6 @@ void ChessGame::gameHandler()
     }
     string winner = whitesMove ? "White" : "Black";
     cout << winner << " won" << endl;
-    // Todo delete
 }
 
 // temporary function

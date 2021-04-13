@@ -15,13 +15,14 @@ using namespace std::chrono;
 string ChessAI::chooseMove(thc::ChessRules board)
 {
     auto start = high_resolution_clock::now();
-    std::vector<thc::Move> legalMoves;
+    int index;
     std::vector<bool> check;
     std::vector<bool> mate;
     std::vector<bool> stalemate;
     std::vector<int> eval;
     std::vector<string> move;
-    int index;
+    std::vector<thc::Move> legalMoves;
+
     board.GenLegalMoveList(legalMoves, check, mate, stalemate);
     for(int i = 0; i < legalMoves.size(); ++i)
     {
