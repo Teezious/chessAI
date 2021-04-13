@@ -14,6 +14,7 @@ class Evaluation
     static int evaluateBoardState(thc::ChessRules board);
 
   private:
+    static int mirrorSquare(int pos);
     static const std::map<char, int> whitePieceValues;
     static const std::map<char, std::vector<int>> positionalWhiteValues;
 };

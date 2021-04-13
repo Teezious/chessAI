@@ -80,6 +80,7 @@ void ChessGame::printBoardState()
 {
     string boardString = this->board.ToDebugStr();
     int i = 0;
+    cout << " ";
     for(char c : boardString)
     {
         if(i % 9 == 0)
