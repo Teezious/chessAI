@@ -8,6 +8,7 @@
 - [x] Erste Zwischenziele definieren (erledigt am 30.03.21 von Team)
 ---
 ## nach 2. Meeting
-- [] Portieren C++
-- [] Informieren, Videos anschauen für weiter Optimierungen
+- [x] Portieren C++ (erledigt 31.03.21 am von Florian)
+- [x] Informieren, Videos anschauen für weiter Optimierungen (erledigt von Team 02.04.21)
+- [x] zu implementierende Features fixieren (erledigt von Team 02.04.21)
 - [x] GitHub Repository (erledigt am 30.03.21 von Mattthias)
