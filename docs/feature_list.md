@@ -1,5 +1,5 @@
 # Potentielle Features
-- Monte Carlo
+- Monte Carlo Tree Search
 - Schachdatenbank
 - Elo-Ranking für AI
 - Iterative Deepening

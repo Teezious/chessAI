@@ -12,3 +12,8 @@
 - [x] Informieren, Videos anschauen für weiter Optimierungen (erledigt von Team 02.04.21)
 - [x] zu implementierende Features fixieren (erledigt von Team 02.04.21)
 - [x] GitHub Repository (erledigt am 30.03.21 von Mattthias)
+
+## nach 3. Meeting
+- [] Teststrategie überlegen (von Dhawal)
+- [] Moves Sortieren implementieren (von Florian & Tu)
+- [] Multithreading implementieren (von Matthias)

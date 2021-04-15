@@ -18,7 +18,7 @@ class ChessAI : public AbstractChessPlayer
 
   protected:
   private:
-    int minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta);
+  static int minMax(thc::ChessRules board, const int depth, bool maximize, int alpha, int beta);
 };
 
 #endif // CHESSAI_CHESSAI_H
