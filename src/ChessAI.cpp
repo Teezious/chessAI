@@ -22,14 +22,14 @@ class ResultFinder
   public:
     using Ptr = std::shared_ptr<ResultFinder>;
 
-    ResultFinder(int init) : mBest(init), resultMtx() {}
+    ResultFinder(int init) : mBestEval(init), resultMtx() {}
 
     ~ResultFinder() {}
 
     // Acquire lock before calling this function
     int getBestEval()
     {
-        return mBest;
+        return mBestEval;
     }
 
     thc::Move getBestMove()
@@ -40,7 +40,7 @@ class ResultFinder
     // Acquire lock before calling this function
     void setBestEval(const int newBestEval, const thc::Move& newBestMove)
     {
-        mBest = newBestEval;
+        mBestEval = newBestEval;
         mBestMove = newBestMove;
     }
 
@@ -50,9 +50,9 @@ class ResultFinder
     }
 
   private:
-    int mBest;
-    std::mutex resultMtx;
-    thc::Move mBestMove;
+    int mBestEval; //best evaluation
+    std::mutex resultMtx; //saves best move
+    thc::Move mBestMove; // get this mutex before getting or setting new best move
 };
 
 string ChessAI::chooseMove(thc::ChessRules board)
@@ -66,24 +66,23 @@ string ChessAI::chooseMove(thc::ChessRules board)
     std::vector<thc::Move> legalMoves;
     bool isWhite = this->getIsWhite();
     board.GenLegalMoveList(legalMoves, check, mate, stalemate);
-    ResultFinder::Ptr result;
+    ResultFinder::Ptr result; //result will be saved here
 
-    cb::ThreadPool pool(cb::ThreadPool::GetNumLogicalCores());
+    cb::ThreadPool pool(cb::ThreadPool::GetNumLogicalCores()); //generates thread pool
     if(isWhite)
     {
-        result = std::make_shared<ResultFinder>(std::numeric_limits<int>::min());
+        result = std::make_shared<ResultFinder>(std::numeric_limits<int>::min()); // min initialisze for maximizer
         for(const thc::Move& move : legalMoves)
         {
             pool.Schedule([&]() {
                 thc::ChessRules b = board;
-                b.PlayMove(move);
-                thc::Move tmp = move;
+                b.PlayMove(move); // push every possible move 
                 int moveEval = minMax(b, SEARCH_DEPTH - 1, !isWhite, result->getBestEval(),
                                       std::numeric_limits<int>::max()); // maybe mutex here
                 {
                     std::lock_guard<std::mutex> lock{result->getMutex()};
                     {
-                        if(moveEval > result->getBestEval())
+                        if(moveEval > result->getBestEval()) //check if new best
                         {
                             result->setBestEval(moveEval, move);
                         }
@@ -95,7 +94,7 @@ string ChessAI::chooseMove(thc::ChessRules board)
     }
     else
     {
-        result = std::make_shared<ResultFinder>(std::numeric_limits<int>::max());
+        result = std::make_shared<ResultFinder>(std::numeric_limits<int>::max()); // max initialisze for minimizer
         for(const thc::Move& move : legalMoves)
         {
             pool.Schedule([&]() {
@@ -107,7 +106,7 @@ string ChessAI::chooseMove(thc::ChessRules board)
                 {
                     std::lock_guard<std::mutex> lock{result->getMutex()};
                     {
-                        if(moveEval < result->getBestEval())
+                        if(moveEval < result->getBestEval()) //check if new best
                         {
                             result->setBestEval(moveEval, move);
                         }
@@ -117,7 +116,7 @@ string ChessAI::chooseMove(thc::ChessRules board)
         }
     }
 
-    pool.Wait();
+    pool.Wait(); // wait for all threds to finish
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<seconds>(stop - start);
 
@@ -127,7 +126,7 @@ string ChessAI::chooseMove(thc::ChessRules board)
     return result->getBestMove().TerseOut();
 }
 
-int ChessAI::minMax(thc::ChessRules board, const int depth, bool maximize, int alpha, int beta)
+int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta)
 {
     // TODO detect check mate
     if(depth == 0)

@@ -14,7 +14,7 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
     int sum = 0;
     for(char piece : board.squares)
     {
-        if(piece == 32 || piece == '\0') { //skip empty chars
+        if(piece == 32 || piece == '\0') { //skip empty squares
             pos++;
             continue;
         }
@@ -26,7 +26,7 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
         else
         {
             sum += whitePieceValues.at(piece);
-            sum += positionalWhiteValues.at(piece).at(mirrorSquare(pos));
+            sum += positionalWhiteValues.at(piece).at(mirrorSquare(pos)); // mirror white as board is traversed in reverse order
         }
         pos++;
     }
@@ -39,6 +39,7 @@ int Evaluation::mirrorSquare(int pos) {
 
 const std::map<char, int> Evaluation::whitePieceValues = {{'P', 100}, {'N', 320}, {'B', 330},
                                                           {'R', 500}, {'Q', 900}, {'K', 20000}};
+// positional values for each piece  rows = rank 1 -> 8, columns = file a -> h                                                      
 const std::map<char, std::vector<int>> Evaluation::positionalWhiteValues = {
     {'P', {
         0, 0, 0, 0, 0, 0, 0, 0,
@@ -106,4 +107,5 @@ const std::map<char, std::vector<int>> Evaluation::positionalWhiteValues = {
         -30, -40, -40, -50, -50, -40, -40, -30
         }
     }
+    //TODO King Endgame
 };
