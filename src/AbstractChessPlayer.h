@@ -15,6 +15,10 @@ class AbstractChessPlayer
     {
         this->isWhite = isWhite;
     }
+    AbstractChessPlayer()
+    {
+        this->isWhite = true;
+    }
 
     bool getIsWhite()
     {
