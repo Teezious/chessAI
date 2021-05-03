@@ -15,5 +15,5 @@
 
 ## nach 3. Meeting
 - [] Teststrategie überlegen (von Dhawal)
-- [] Moves Sortieren implementieren (von Florian & Tu)
-- [] Multithreading implementieren (von Matthias)
+- [x] Moves Sortieren implementieren (von Florian & Tu 30.04.21)
+- [x] Multithreading implementieren (erledigt von Matthias am 15.04.21)
