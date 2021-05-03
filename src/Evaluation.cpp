@@ -36,7 +36,9 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
 int Evaluation::mirrorSquare(int pos) {
     return pos ^ 0x38;
 }
-
+int Evaluation::getWhitePieceValue(char piece) {
+    return whitePieceValues.at(toupper(piece));
+}
 const std::map<char, int> Evaluation::whitePieceValues = {{'P', 100}, {'N', 320}, {'B', 330},
                                                           {'R', 500}, {'Q', 900}, {'K', 20000}};
 // positional values for each piece  rows = rank 1 -> 8, columns = file a -> h                                                      

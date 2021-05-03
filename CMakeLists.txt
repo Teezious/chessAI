@@ -13,7 +13,7 @@ add_executable(chessAI
         src/ChessAI.cpp
         src/Evaluation.cpp
         src/Evaluation.h
-        src/thread_pool.cc)
+        src/thread_pool.cc src/MoveSorter.cpp src/MoveSorter.h)
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/lib/thc" EXCLUDE_FROM_ALL)
 include_directories(${THC_CHESS_INCLUDE})

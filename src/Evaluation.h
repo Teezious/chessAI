@@ -12,7 +12,7 @@ class Evaluation
 {
   public:
     static int evaluateBoardState(thc::ChessRules board);
-
+    static int getWhitePieceValue(char piece);
   private:
     static int mirrorSquare(int pos);
     static const std::map<char, int> whitePieceValues;

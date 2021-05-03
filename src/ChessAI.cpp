@@ -6,13 +6,14 @@
 #include "Evaluation.h"
 #include "thread_pool.h"
 #include <assert.h>
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
 #include <chrono>
 #include <iostream>
 #include <limits>
 #include <memory>
 #include <thread>
 #include <tuple>
+#include "MoveSorter.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -73,6 +74,7 @@ string ChessAI::chooseMove(thc::ChessRules board)
     std::vector<thc::Move> legalMoves;
     bool isWhite = this->getIsWhite();
     board.GenLegalMoveList(legalMoves, check, mate, stalemate);
+    MoveSorter::sortMoves(legalMoves, board);
     ResultFinder::Ptr result; //result will be saved here
     int expectedMoveCount = legalMoves.size();
 
@@ -157,6 +159,7 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int 
     int bestEval = maximize ? numeric_limits<int>::min() : numeric_limits<int>::max();
 
     board.GenLegalMoveList(legalMoves, check, mate, stalemate);
+    MoveSorter::sortMoves(legalMoves, board);
     for(const thc::Move& move : legalMoves)
     {
         thc::ChessRules b = board;
