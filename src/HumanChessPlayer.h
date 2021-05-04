@@ -12,7 +12,7 @@ class HumanChessPlayer final : public AbstractChessPlayer
   public:
     HumanChessPlayer(bool isWhite) : AbstractChessPlayer(isWhite){};
 
-    std::string chooseMove(thc::ChessRules board);
+    std::string chooseMove(thc::ChessRules board, bool printResults = true);
 };
 
 #endif // CHESSAI_HUMANCHESSPLAYER_H

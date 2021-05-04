@@ -14,11 +14,12 @@ class ChessAI final : public AbstractChessPlayer
 {
   public:
     ChessAI(bool isWhite) : AbstractChessPlayer(isWhite){};
-    std::string chooseMove(thc::ChessRules board);
+    std::string chooseMove(thc::ChessRules board, bool printResults = true);
+    std::string multiThreadedSearch(thc::ChessRules board, unsigned int *nodesSearched, int *bestEval);
 
   protected:
   private:
-  static int minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta);
+  static int minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta, unsigned int *nodesSearched);
 };
 
 #endif // CHESSAI_CHESSAI_H
