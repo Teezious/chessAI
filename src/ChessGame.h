@@ -8,7 +8,7 @@
 #include "../lib/thc/src/thc.h"
 #include <iostream>
 
-class ChessGame
+class ChessGame final
 {
   public:
     thc::ChessRules& getBoard()

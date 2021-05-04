@@ -7,7 +7,7 @@
 #include <iostream>
 #include "../lib/thc/src/thc.h"
 
-class HumanChessPlayer : public AbstractChessPlayer
+class HumanChessPlayer final : public AbstractChessPlayer
 {
   public:
     HumanChessPlayer(bool isWhite) : AbstractChessPlayer(isWhite){};

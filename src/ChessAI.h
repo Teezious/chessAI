@@ -8,9 +8,9 @@
 #include <iostream>
 #include <limits>
 
-#define SEARCH_DEPTH 5 // reccomended 5 as 6 currently takes 30second + per move
+#define SEARCH_DEPTH 6 // reccomended 5 as 6 currently takes 30second + per move
 
-class ChessAI : public AbstractChessPlayer
+class ChessAI final : public AbstractChessPlayer
 {
   public:
     ChessAI(bool isWhite) : AbstractChessPlayer(isWhite){};

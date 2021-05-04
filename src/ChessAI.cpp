@@ -130,7 +130,7 @@ string ChessAI::chooseMove(thc::ChessRules board)
     }
 
     pool.Wait(); // wait for all threds to finish
-    // ugly solution that makes sure threads actually are finished
+    // ugly solution that makes sure threads actually are finished; pool.Wait() doesnt work for some reason
     while(result->getMoveCount() != expectedMoveCount){
         this_thread::sleep_for(200ms);
     }

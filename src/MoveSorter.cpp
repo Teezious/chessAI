@@ -4,22 +4,26 @@
 
 #include "MoveSorter.h"
 #include "Evaluation.h"
+#include <iostream>
 
 using namespace std;
 
 void MoveSorter::sortMoves(vector<thc::Move>& moves, thc::ChessRules &board) {
-    vector<int> moveScores;
-    for(thc::Move move : moves) {
+    if(moves.empty())
+        return;
+
+    int moveScores[moves.size()];
+    for(int i = 0; i < moves.size(); i++) {
         int moveScore = 0;
-        char movePiece = board.squares[move.src];
-        char capturePiece = board.squares[move.dst];
+        char movePiece = board.squares[moves[i].src];
+        char capturePiece = board.squares[moves[i].dst];
 
         //reward capturing enemy pieces
         if(capturePiece != '.' && capturePiece != ' ')
             moveScore += 10 * Evaluation::getWhitePieceValue(capturePiece) - Evaluation::getWhitePieceValue(movePiece);
 
         //check if there is a possible Promotion
-        switch(move.special) {
+        switch(moves[i].special) {
             case 6: //Queen Promotion
                 moveScore += Evaluation::getWhitePieceValue('Q');
                 break;
@@ -36,32 +40,31 @@ void MoveSorter::sortMoves(vector<thc::Move>& moves, thc::ChessRules &board) {
                 break;
         }
         //punish moving on a attacked square
-        if(board.AttackedSquare(move.dst, !board.white))
+        if(board.AttackedSquare(moves[i].dst, !board.white))
             moveScore -= Evaluation::getWhitePieceValue(movePiece);
         //reward moving out of attacked Square
-        if(board.AttackedSquare(move.src, !board.white))
+        if(board.AttackedSquare(moves[i].src, !board.white))
             moveScore += Evaluation::getWhitePieceValue(movePiece);
 
-        moveScores.push_back(moveScore);
+        moveScores[i] = moveScore;
     }
     //sort moves, maybe try out a few other sorting algorithms?
     insertionSort(moves,moveScores);
 }
 
-void MoveSorter::insertionSort(vector<thc::Move> &moves, vector<int> &moveScores) {
-    if(moves.empty() || moveScores.empty())
-        return;
-
-    for(int i = 0; i < moveScores.size() - 1; i++) {
+void MoveSorter::insertionSort(vector<thc::Move> &moves, int *moveScores) {
+    for(int i = 0; i < moves.size() - 1; i++) {
         int j = i + 1;
-        int tmpScore = moveScores.at(j);
+        int tmpScore = moveScores[j];
         thc::Move tmpMove = moves.at(j);
-        while(j > 0 && tmpScore > moveScores.at(j-1)) {
-            iter_swap(moveScores.begin() + j, moveScores.begin() + j - 1);
+        while(j > 0 && tmpScore > moveScores[j-1]) {
+            int swap = moveScores[j];
+            moveScores[j] = moveScores[j-1];
+            moveScores[j-1] = swap;
             iter_swap(moves.begin() + j, moves.begin() + j - 1);
             j--;
         }
-        moveScores.at(j) = tmpScore;
+        moveScores[j] = tmpScore;
         moves.at(j) = tmpMove;
     }
 }
