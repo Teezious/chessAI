@@ -78,3 +78,32 @@ Bis zum nächsten Meeting:
  - Moves Sortieren implementieren
  - Multithreading implementieren
 ---
+## 4. Meeting 
+Datum: 05.04.2021 13:30
+
+Dauer: 30min
+
+Art: mit Betreuer
+
+Anwesend: Chudal Dhawal, Tu Hao, Sparr Matthias, Florian Rumpold
+
+Abwesend: /
+
+Themen:
+ - Präsentation der abgeschlossenen Tasks
+ - Herzeigen der c++ Portierung
+ - Monte Carlo Tree Search als Möglichkeit für Suchbaum Einschränkung
+ - Teststrategie
+
+Entscheidungen:
+ - Tests bzw. Projektfortschritt visualisieren
+ - Opening einbauen
+ - Ieratative Deepening
+ - nächstes Meeting (Mittwoch 2. Juni 12:30)
+  
+Bis zum nächsten Meeting:
+- Iterative Deepening
+- Endgame Tactics
+- Quick-Sort bzw. Merge Sort implementieren
+- Openings
+---
