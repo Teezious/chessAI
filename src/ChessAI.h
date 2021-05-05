@@ -8,7 +8,7 @@
 #include <iostream>
 #include <limits>
 
-#define SEARCH_DEPTH 6 // reccomended 5 as 6 currently takes 30second + per move
+#define SEARCH_DEPTH 5 // reccomended 5 as 6 currently takes 30second + per move
 
 class ChessAI final : public AbstractChessPlayer
 {
@@ -19,7 +19,7 @@ class ChessAI final : public AbstractChessPlayer
 
   protected:
   private:
-  static int minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta, unsigned int *nodesSearched);
+    static int minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta, unsigned int *nodesSearched);
 };
 
 #endif // CHESSAI_CHESSAI_H
