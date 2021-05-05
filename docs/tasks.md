@@ -14,6 +14,14 @@
 - [x] GitHub Repository (erledigt am 30.03.21 von Mattthias)
 
 ## nach 3. Meeting
-- [] Teststrategie überlegen (von Dhawal)
+- [x] Teststrategie überlegen (von Dhawal)
 - [x] Moves Sortieren implementieren (von Florian & Tu 30.04.21)
 - [x] Multithreading implementieren (erledigt von Matthias am 15.04.21)
+
+## nach 4. Meeting
+- [] Iterative Deepening (Flo)
+- [] Endgame Tactics (Matthias)
+- [] Quick-Sort bzw. Merge Sort implementieren (Flo)
+- [] Openings (Tu und Dhawal)
+- [] Einranken (Dhawal)
+
