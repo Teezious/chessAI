@@ -96,3 +96,17 @@ void ChessGame::printBoardState()
     cout << endl << "   +---+---+---+---+---+---+---+---+" << endl;
     cout << "     a   b   c   d   e   f   g   h " << endl;
 }
+void ChessGame::Customboard(char *Customboard)
+{
+    strcpy(board.squares, Customboard);
+}
+ChessGame::ChessGame() : Endgames1("        "
+                                   "pkP     "
+                                   "        "
+                                   "     r  "
+                                   "P       "
+                                   "      q "
+                                   "   Q  p "
+                                   "  R   K ") {
+
+}

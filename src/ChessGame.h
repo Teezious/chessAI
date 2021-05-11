@@ -15,6 +15,10 @@ class ChessGame final
     {
         return board;
     }
+
+    ChessGame();
+    char *Endgames1;
+
     void setBoard(thc::ChessRules& board)
     {
         this->board = board;
@@ -22,6 +26,7 @@ class ChessGame final
 
     void gameHandler();
     void printBoardState();
+    void Customboard(char *Customboard);
 
   private:
     thc::ChessRules board;

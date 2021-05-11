@@ -14,7 +14,7 @@ class PerformanceTester final
     void runPerformanceTest();
   private:
     std::string logPath = "resources/PerformanceLogs";
-    std::string scenarioPath = "../resources/Scenarios/scenario";
+    std::string scenarioPath = "resources/Scenarios/scenario";
 };
 
 #endif // CHESSAI_PERFORMANCETESTER_H

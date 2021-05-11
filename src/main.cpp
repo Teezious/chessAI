@@ -6,11 +6,14 @@
 #include "ChessGame.h"
 #include <cstring>
 #include <iostream>
-
+#include "../test/TestHeader.h"
 using namespace std;
 
 int main(void)
 {
-    ChessGame game;
-    game.gameHandler();
+
+    testing::InitGoogleTest();
+    RUN_ALL_TESTS();
+    //ChessGame game;
+    //game.gameHandler();
 }
