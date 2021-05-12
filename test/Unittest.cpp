@@ -10,6 +10,7 @@
 TEST(Unittest,Board_test){
     ChessGame gametest;
     gametest.printBoardState();
+
 }
 
 TEST(unittest,move_test){
@@ -23,14 +24,14 @@ TEST(unittest,move_test){
 }
 
 TEST(unittest,EndgamesSet_test){
-
     ChessGame gametest;
-    gametest.Customboard(gametest.Endgames1);
+    gametest.Customboard(gametest.Endgames2);
     gametest.printBoardState();
 }
 
+
 TEST(unittest,AI_test){
     PerformanceTester tester;
-
     tester.runPerformanceTest();
 }
+

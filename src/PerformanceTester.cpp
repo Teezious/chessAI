@@ -34,6 +34,9 @@ void PerformanceTester::runPerformanceTest() {
         i++;
     }
     cout<<"txt read"<<endl;
+    for(string boardString : boardStrings){
+        cout<<boardString<<endl;
+    }
     //measure performance
     for(string boardString : boardStrings) {
         strcpy(board.squares, boardString.c_str());

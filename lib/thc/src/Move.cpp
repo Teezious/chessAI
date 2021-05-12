@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include "iostream"
 using namespace std;
 using namespace thc;
 
@@ -1268,6 +1269,7 @@ bool Move::TerseIn(ChessRules* cr, const char* tmove)
                 *this = list.moves[i];
         }
     }
+    cout<<okay<<endl;
     return okay;
 }
 

@@ -3,10 +3,10 @@
 //
 
 #include "../lib/thc/src/thc.h"
+#include "../test/TestHeader.h"
 #include "ChessGame.h"
 #include <cstring>
 #include <iostream>
-#include "../test/TestHeader.h"
 using namespace std;
 
 int main(void)
@@ -14,6 +14,8 @@ int main(void)
 
     testing::InitGoogleTest();
     RUN_ALL_TESTS();
-    //ChessGame game;
-    //game.gameHandler();
+   // ChessGame game;
+
+   // game.gameHandler();
+
 }

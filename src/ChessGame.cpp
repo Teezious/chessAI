@@ -50,7 +50,7 @@ void ChessGame::gameHandler()
         if(whitesMove)
         {
             do
-            {
+            {   cout<<whitePlayer->getIsWhite()<<endl;
                 move = whitePlayer->chooseMove(board);
             } while(!mv.TerseIn(&board, move.c_str()));
         }
@@ -100,13 +100,26 @@ void ChessGame::Customboard(char *Customboard)
 {
     strcpy(board.squares, Customboard);
 }
-ChessGame::ChessGame() : Endgames1("        "
-                                   "pkP     "
-                                   "        "
-                                   "     r  "
-                                   "P       "
-                                   "      q "
-                                   "   Q  p "
-                                   "  R   K ") {
+ChessGame::ChessGame(){
+
+    Endgames1="        "
+              " k      "
+              "       q"
+              "     r  "
+              "        "
+              "        "
+              "   Q    "
+              "  R   K ";
+
+    Endgames2="rnbqkbnr"
+              "        "
+              " p      "
+              "        "
+              "        "
+              "    P   "
+              "        "
+              "RNBQKBNR";
+
 
 }
+

@@ -18,6 +18,8 @@ class ChessGame final
 
     ChessGame();
     char *Endgames1;
+    char *Endgames2;
+    ChessGame(char* endgames2);
 
     void setBoard(thc::ChessRules& board)
     {
