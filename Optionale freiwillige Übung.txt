@@ -1,0 +1,4 @@
+Gruppe: Chudal,Rumpold,Sparr,Tu
+
+Dieses Schach-KI-Programm ist ein Projekt unserer Gruppe.
+Wir haben Unit-Tests hinzugefügt. Testete die Checkerboard output, Move command, Initialisieren Checkerboard und die AI-Multithread-Leistung.
