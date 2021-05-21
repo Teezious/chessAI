@@ -65,7 +65,8 @@ class ResultFinder
     thc::Move mBestMove; // get this mutex before getting or setting new best move
 };
 
-string ChessAI::chooseMove(thc::ChessRules board, bool printResults){
+string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
+{
     auto start = high_resolution_clock::now();
     unsigned int nodesSearched = 1;
     int eval;
@@ -75,14 +76,15 @@ string ChessAI::chooseMove(thc::ChessRules board, bool printResults){
     auto duration = duration_cast<milliseconds>(stop - start);
     if(printResults)
     {
-        cout << "Minmax finished in " << duration.count()/1000 << " seconds" << endl;
+        cout << "Minmax finished in " << duration.count() / 1000 << " seconds" << endl;
         cout << "eval: " << eval << " move: " << move << endl;
         cout << "Nodes searched: " << nodesSearched << endl;
     }
     return move;
 }
 
-std::string ChessAI::multiThreadedSearch(thc::ChessRules board, unsigned int *nodesSearched, int *bestEval)
+std::string ChessAI::multiThreadedSearch(thc::ChessRules board, unsigned int* nodesSearched,
+                                         int* bestEval)
 {
     std::vector<bool> check;
     std::vector<bool> mate;
@@ -97,45 +99,66 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board, unsigned int *no
     int expectedMoveCount = legalMoves.size();
 
     cb::ThreadPool pool(cb::ThreadPool::GetNumLogicalCores()); // generates thread pool
-
     if(isWhite)
-        result = std::make_shared<ResultFinder>(
-            std::numeric_limits<int>::min()); // min initialize for maximizer
-    else
-        result = std::make_shared<ResultFinder>(
-            std::numeric_limits<int>::max()); // max initialise for minimizer
-    for(thc::Move& move : legalMoves)
     {
-        pool.Schedule([&]() {
-            thc::ChessRules b = board;
-            b.PlayMove(move); // push every possible move
-            int moveEval = minMax(b, SEARCH_DEPTH - 1, !isWhite, result->getBestEval(),
-                                  std::numeric_limits<int>::max(), nodesSearched); // mutex here
-            {
-                std::lock_guard<std::mutex> lock{result->getMutex()};
+        result = std::make_shared<ResultFinder>(
+            std::numeric_limits<int>::min()); // min initialisze for maximizer
+        for(thc::Move& move : legalMoves)
+        {
+            pool.Schedule([&]() {
+                thc::ChessRules b = board;
+                b.PlayMove(move); // push every possible move
+                int moveEval = minMax(b, SEARCH_DEPTH - 1, !isWhite, result->getBestEval(),
+                                      std::numeric_limits<int>::max(), nodesSearched); // maybe mutex here
+                std::cout << "eval: " << moveEval << " move: " << move.TerseOut() << "\n";
                 {
-                    if(moveEval > result->getBestEval()) // check if new best
+                    std::lock_guard<std::mutex> lock{result->getMutex()};
                     {
-                        result->setBestEval(moveEval, move);
+                        if(moveEval > result->getBestEval()) // check if new best
+                        {
+                            result->setBestEval(moveEval, move);
+                        }
+                        result->moveIncrement();
                     }
-                    result->moveIncrement();
-                }
 
-            } // Release mutex
-        });
+                } // Release mutex
+            });
+        }
+    }
+    else
+    {
+        result = std::make_shared<ResultFinder>(
+            std::numeric_limits<int>::max()); // max initialisze for minimizer
+        for(thc::Move& move : legalMoves)
+        {
+            pool.Schedule([&]() {
+                thc::ChessRules b = board;
+                b.PlayMove(move);
+                int moveEval =
+                    minMax(b, SEARCH_DEPTH - 1, !isWhite, std::numeric_limits<int>::min(),
+                           result->getBestEval(), nodesSearched); // maybe mutex here
+                {
+                    std::lock_guard<std::mutex> lock{result->getMutex()};
+                    {
+                        if(moveEval < result->getBestEval()) // check if new best
+                        {
+                            result->setBestEval(moveEval, move);
+                        }
+                        result->moveIncrement();
+                    }
+                } // Release mutex
+            });
+        }
     }
 
-    pool.Wait(); // wait for all threads to finish
-    // ugly solution that makes sure threads actually are finished; pool.Wait() doesnt work for some
-    // reason
-    while(result->getMoveCount() != expectedMoveCount)
-    {
+    pool.Wait(); // wait for all threds to finish
+    // ugly solution that makes sure threads actually are finished; pool.Wait() doesnt work for some reason
+    while(result->getMoveCount() != expectedMoveCount){
         this_thread::sleep_for(200ms);
     }
     *bestEval = result->getBestEval();
     return result->getBestMove().TerseOut();
 }
-
 
 int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta,
                     unsigned int* nodesSearched)
