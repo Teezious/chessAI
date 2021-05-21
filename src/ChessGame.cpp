@@ -18,9 +18,9 @@ void ChessGame::gameHandler()
     ChessPlayerPtr blackPlayer = nullptr;
     while(true)
     {
-        string userColorChoice = "white"; // TODO change back
-        // cout << "Enter your color(white/black): ";
-        // getline(cin, userColorChoice);
+        string userColorChoice = "white";
+        cout << "Enter your color(white/black): ";
+        getline(cin, userColorChoice);
         transform(userColorChoice.begin(), userColorChoice.end(), userColorChoice.begin(),
                   ::tolower);
         if(userColorChoice.compare("black") == 0)
@@ -49,24 +49,27 @@ void ChessGame::gameHandler()
 
         if(whitesMove)
         {
-            do{
+            do
+            {
                 move = whitePlayer->chooseMove(board);
-            }while(!mv.TerseIn(&board, move.c_str()));
-            
+            } while(!mv.TerseIn(&board, move.c_str()));
         }
         else
         {
-            do{
+            do
+            {
                 move = blackPlayer->chooseMove(board);
-            }while(!mv.TerseIn(&board, move.c_str()));
+            } while(!mv.TerseIn(&board, move.c_str()));
         }
         cout << move << endl;
         board.PlayMove(mv);
-        thc::TERMINAL evalPosition;
+        thc::TERMINAL evalPosition; // what does this code do?
         bool legal = board.Evaluate(evalPosition);
         bool mateWhite = (evalPosition == thc::TERMINAL_WCHECKMATE);
         bool mateBlack = (evalPosition == thc::TERMINAL_BCHECKMATE);
 
+        // TODO check three fold repetition
+        // TODO draws
         // check mate, stalemate
         if(mateBlack || mateWhite)
             break;
@@ -84,7 +87,9 @@ void ChessGame::printBoardState()
     for(char c : board.squares)
     {
         if(i % 8 == 0 && i != 64)
-            cout << "|" << endl << "   +---+---+---+---+---+---+---+---+" << endl << " " << ((64 - i) / 8) << " ";
+            cout << "|" << endl
+                 << "   +---+---+---+---+---+---+---+---+" << endl
+                 << " " << ((64 - i) / 8) << " ";
         cout << "| " << c << " ";
         i++;
     }

@@ -29,7 +29,7 @@ class AbstractChessPlayer
         this->isWhite = isWhite;
     }
 
-    virtual std::string chooseMove(thc::ChessRules board) = 0;
+    virtual std::string chooseMove(thc::ChessRules board, bool printResults = true) = 0;
 
   private:
     bool isWhite;

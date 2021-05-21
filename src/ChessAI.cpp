@@ -4,53 +4,166 @@
 
 #include "ChessAI.h"
 #include "Evaluation.h"
+#include "thread_pool.h"
 #include <assert.h>
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
+#include "MoveSorter.h"
 #include <chrono>
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <thread>
 #include <tuple>
-#include <algorithm>
 
 using namespace std;
 using namespace std::chrono;
+typedef std::shared_ptr<std::thread> ThreadPtr;
+class ResultFinder
+{
+  public:
+    using Ptr = std::shared_ptr<ResultFinder>;
 
-string ChessAI::chooseMove(thc::ChessRules board)
+    ResultFinder(int init) : mBestEval(init), moveCount(0), resultMtx() {}
+
+    ~ResultFinder() {}
+
+    // Acquire lock before calling this function
+    int getBestEval()
+    {
+        return mBestEval;
+    }
+
+    thc::Move getBestMove()
+    {
+        return mBestMove;
+    }
+
+    // Acquire lock before calling this function
+    void setBestEval(const int newBestEval, const thc::Move& newBestMove)
+    {
+        mBestEval = newBestEval;
+        mBestMove = newBestMove;
+    }
+
+    void moveIncrement()
+    {
+        ++moveCount;
+    }
+    int getMoveCount()
+    {
+        return moveCount;
+    }
+    std::mutex& getMutex()
+    {
+        return resultMtx;
+    }
+
+  private:
+    int mBestEval; // best evaluation
+    int moveCount;
+    std::mutex resultMtx; // saves best move
+    thc::Move mBestMove; // get this mutex before getting or setting new best move
+};
+
+string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
 {
     auto start = high_resolution_clock::now();
-    int index;
+    unsigned int nodesSearched = 1;
+    int eval;
+    string move = multiThreadedSearch(board, &nodesSearched, &eval);
+
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop - start);
+    if(printResults)
+    {
+        cout << "Minmax finished in " << duration.count() / 1000 << " seconds" << endl;
+        cout << "eval: " << eval << " move: " << move << endl;
+        cout << "Nodes searched: " << nodesSearched << endl;
+    }
+    return move;
+}
+
+std::string ChessAI::multiThreadedSearch(thc::ChessRules board, unsigned int* nodesSearched,
+                                         int* bestEval)
+{
     std::vector<bool> check;
     std::vector<bool> mate;
     std::vector<bool> stalemate;
     std::vector<int> eval;
     std::vector<string> move;
     std::vector<thc::Move> legalMoves;
-
+    bool isWhite = this->getIsWhite();
     board.GenLegalMoveList(legalMoves, check, mate, stalemate);
-    for(int i = 0; i < legalMoves.size(); ++i)
+    MoveSorter::sortMoves(legalMoves, board);
+    ResultFinder::Ptr result; // result will be saved here
+    int expectedMoveCount = legalMoves.size();
+
+    cb::ThreadPool pool(cb::ThreadPool::GetNumLogicalCores()); // generates thread pool
+    if(isWhite)
     {
-        thc::ChessRules tmpBoard = board;
-        tmpBoard.PlayMove(legalMoves[i]);
-        move.push_back(legalMoves[i].TerseOut());
-        eval.push_back(minMax(tmpBoard, SEARCH_DEPTH - 1, !this->getIsWhite(),
-                              numeric_limits<int>::min(), numeric_limits<int>::max()));
-    }
-    if(this->getIsWhite())
-    {
-        index = distance(eval.begin(), max_element(eval.begin(), eval.end()));
+        result = std::make_shared<ResultFinder>(
+            std::numeric_limits<int>::min()); // min initialisze for maximizer
+        for(thc::Move& move : legalMoves)
+        {
+            pool.Schedule([&]() {
+                thc::ChessRules b = board;
+                b.PlayMove(move); // push every possible move
+                int moveEval = minMax(b, SEARCH_DEPTH - 1, !isWhite, result->getBestEval(),
+                                      std::numeric_limits<int>::max(), nodesSearched); // maybe mutex here
+                std::cout << "eval: " << moveEval << " move: " << move.TerseOut() << "\n";
+                {
+                    std::lock_guard<std::mutex> lock{result->getMutex()};
+                    {
+                        if(moveEval > result->getBestEval()) // check if new best
+                        {
+                            result->setBestEval(moveEval, move);
+                        }
+                        result->moveIncrement();
+                    }
+
+                } // Release mutex
+            });
+        }
     }
     else
     {
-        index = distance(eval.begin(), min_element(eval.begin(), eval.end()));
+        result = std::make_shared<ResultFinder>(
+            std::numeric_limits<int>::max()); // max initialisze for minimizer
+        for(thc::Move& move : legalMoves)
+        {
+            pool.Schedule([&]() {
+                thc::ChessRules b = board;
+                b.PlayMove(move);
+                int moveEval =
+                    minMax(b, SEARCH_DEPTH - 1, !isWhite, std::numeric_limits<int>::min(),
+                           result->getBestEval(), nodesSearched); // maybe mutex here
+                {
+                    std::lock_guard<std::mutex> lock{result->getMutex()};
+                    {
+                        if(moveEval < result->getBestEval()) // check if new best
+                        {
+                            result->setBestEval(moveEval, move);
+                        }
+                        result->moveIncrement();
+                    }
+                } // Release mutex
+            });
+        }
     }
 
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<seconds>(stop - start);
-    cout << "Minmax finished in " << duration.count() << " seconds" << endl;
-    cout << "eval: " << eval[index] << " move: " << move[index] << endl;
-    return move[index];
+    pool.Wait(); // wait for all threds to finish
+    // ugly solution that makes sure threads actually are finished; pool.Wait() doesnt work for some reason
+    while(result->getMoveCount() != expectedMoveCount){
+        this_thread::sleep_for(200ms);
+    }
+    *bestEval = result->getBestEval();
+    return result->getBestMove().TerseOut();
 }
 
-int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta)
+int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta,
+                    unsigned int* nodesSearched)
 {
+    (*nodesSearched)++;
     // TODO detect check mate
     if(depth == 0)
     {
@@ -65,15 +178,13 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int 
     int bestEval = maximize ? numeric_limits<int>::min() : numeric_limits<int>::max();
 
     board.GenLegalMoveList(legalMoves, check, mate, stalemate);
-    if(enableOrderMoves)
-        orderMoves(legalMoves, board);
-    for(int i = 0; i < legalMoves.size(); ++i)
+    MoveSorter::sortMoves(legalMoves, board);
+    for(const thc::Move& move : legalMoves)
     {
-        thc::ChessRules tmpBoard = board;
-        tmpBoard.PlayMove(legalMoves[i]);
+        thc::ChessRules b = board;
+        b.PlayMove(move);
         int val;
-        string tmp_move = legalMoves[i].TerseOut();
-        val = minMax(tmpBoard, depth - 1, !maximize, alpha, beta);
+        val = minMax(b, depth - 1, !maximize, alpha, beta, nodesSearched);
 
         if(maximize)
         {
@@ -90,64 +201,4 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int 
     }
 
     return bestEval;
-}
-
-
-void ChessAI::orderMoves(vector<thc::Move> &moves, thc::ChessRules &board) {
-    vector<int> moveScores;
-    for(thc::Move move : moves) {
-        int moveScore = 0;
-        char movePiece = board.squares[move.src];
-        char capturePiece = board.squares[move.dst];
-
-        //reward capturing enemy pieces
-        if(capturePiece != '.' && capturePiece != ' ')
-            moveScore += 10 * Evaluation::getWhitePieceValue(capturePiece) - Evaluation::getWhitePieceValue(movePiece);
-
-        //check if there is a possible Promotion
-        switch(move.special) {
-            case 6: //Queen Promotion
-                moveScore += Evaluation::getWhitePieceValue('Q');
-                break;
-            case 7: //Rook Promotion
-                moveScore += Evaluation::getWhitePieceValue('R');
-                break;
-            case 8: //Bishop Promotion
-                moveScore += Evaluation::getWhitePieceValue('B');
-                break;
-            case 9: //Knight Promotion
-                moveScore += Evaluation::getWhitePieceValue('N');
-                break;
-            default:
-                break;
-        }
-        //punish moving on a attacked square
-        if(board.AttackedSquare(move.dst, !board.white))
-            moveScore -= Evaluation::getWhitePieceValue(movePiece);
-        //reward moving out of attacked Square
-        if(board.AttackedSquare(move.src, !board.white))
-            moveScore += Evaluation::getWhitePieceValue(movePiece);
-
-        moveScores.push_back(moveScore);
-    }
-    //sort moves, maybe try out a few other sorting algorithms?
-    insertionSort(moves,moveScores);
-}
-
-void ChessAI::insertionSort(vector<thc::Move> &moves, vector<int> &moveScores) {
-    if(moves.empty() || moveScores.empty())
-        return;
-
-    for(int i = 0; i < moveScores.size() - 1; i++) {
-        int j = i + 1;
-        int tmpScore = moveScores.at(j);
-        thc::Move tmpMove = moves.at(j);
-        while(j > 0 && tmpScore > moveScores.at(j-1)) {
-            iter_swap(moveScores.begin() + j, moveScores.begin() + j - 1);
-            iter_swap(moves.begin() + j, moves.begin() + j - 1);
-            j--;
-        }
-        moveScores.at(j) = tmpScore;
-        moves.at(j) = tmpMove;
-    }
 }

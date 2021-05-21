@@ -8,20 +8,18 @@
 #include <iostream>
 #include <limits>
 
-#define SEARCH_DEPTH 5
+#define SEARCH_DEPTH 5 // reccomended 5 as 6 currently takes 30second + per move
 
-class ChessAI : public AbstractChessPlayer
+class ChessAI final : public AbstractChessPlayer
 {
   public:
     ChessAI(bool isWhite) : AbstractChessPlayer(isWhite){};
-    ChessAI() :AbstractChessPlayer(){};
-    std::string chooseMove(thc::ChessRules board);
-    void orderMoves(std::vector<thc::Move> &moves, thc::ChessRules &board);
-    bool enableOrderMoves = true;
+    std::string chooseMove(thc::ChessRules board, bool printResults = true);
+    std::string multiThreadedSearch(thc::ChessRules board, unsigned int *nodesSearched, int *bestEval);
+
   protected:
   private:
-    int minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta);
-    void insertionSort(std::vector<thc::Move> &moves, std::vector<int> &moveScores);
+    static int minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta, unsigned int *nodesSearched);
 };
 
 #endif // CHESSAI_CHESSAI_H

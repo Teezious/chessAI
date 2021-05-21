@@ -8,7 +8,7 @@
 #include "../lib/thc/src/thc.h"
 #include <map>
 
-class Evaluation
+class Evaluation final
 {
   public:
     static int evaluateBoardState(thc::ChessRules board);
