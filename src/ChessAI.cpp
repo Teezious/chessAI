@@ -110,7 +110,6 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board, unsigned int* no
                 b.PlayMove(move); // push every possible move
                 int moveEval = minMax(b, SEARCH_DEPTH - 1, !isWhite, result->getBestEval(),
                                       std::numeric_limits<int>::max(), nodesSearched); // maybe mutex here
-                std::cout << "eval: " << moveEval << " move: " << move.TerseOut() << "\n";
                 {
                     std::lock_guard<std::mutex> lock{result->getMutex()};
                     {

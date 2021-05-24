@@ -49,7 +49,8 @@ void MoveSorter::sortMoves(vector<thc::Move>& moves, thc::ChessRules &board) {
         moveScores[i] = moveScore;
     }
     //sort moves, maybe try out a few other sorting algorithms?
-    insertionSort(moves,moveScores);
+    //insertionSort(moves, moveScores);
+    quickSort(moves,moveScores, 0, moves.size() - 1);
 }
 
 void MoveSorter::insertionSort(vector<thc::Move> &moves, int *moveScores) {
@@ -67,4 +68,33 @@ void MoveSorter::insertionSort(vector<thc::Move> &moves, int *moveScores) {
         moveScores[j] = tmpScore;
         moves.at(j) = tmpMove;
     }
+}
+
+void MoveSorter::quickSort(vector<thc::Move> &moves, int *moveScores, int low, int high) {
+    if(low < high) {
+        int p = partition(moves, moveScores, low, high);
+        quickSort(moves, moveScores, low, p - 1);
+        quickSort(moves, moveScores, p + 1, high);
+    }
+}
+int MoveSorter::partition(std::vector<thc::Move>& moves, int *moveScores, int low, int high)
+{
+    int score = moveScores[high];
+    int i = low - 1;
+
+    for(int j = low; j <= high - 1; j++) {
+        if(moveScores[j] >= score) {
+            i++;
+            swap(moves, moveScores, i, j);
+        }
+    }
+    swap(moves, moveScores, i+1, high);
+    return i+1;
+}
+
+void MoveSorter::swap(std::vector<thc::Move> &moves, int *moveScores, int i, int j) {
+    int tmpScore = moveScores[i];
+    moveScores[i] = moveScores[j];
+    moveScores[j] = tmpScore;
+    iter_swap(moves.begin() + i, moves.begin() + j);
 }
