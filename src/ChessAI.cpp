@@ -76,7 +76,7 @@ string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
     auto duration = duration_cast<milliseconds>(stop - start);
     if(printResults)
     {
-        cout << "Minmax finished in " << duration.count() / 1000 << " seconds" << endl;
+        cout << "Minmax finished in " << duration.count() / 1000.0 << " seconds" << endl;
         cout << "eval: " << eval << " move: " << move << endl;
         cout << "Nodes searched: " << nodesSearched << endl;
     }
@@ -162,21 +162,27 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board, unsigned int* no
 int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta,
                     unsigned int* nodesSearched)
 {
+
     (*nodesSearched)++;
-    // TODO detect check mate
-    if(depth == 0)
-    {
+    //detect terminal chess position
+    thc::TERMINAL eval_final_position;
+    board.Evaluate(eval_final_position);
+    if(eval_final_position != 0)
         return Evaluation::evaluateBoardState(board);
-    }
-    assert(depth >= 0);
+
     std::vector<thc::Move> legalMoves;
     std::vector<bool> check;
     std::vector<bool> mate;
     std::vector<bool> stalemate;
+    board.GenLegalMoveList(legalMoves, check, mate, stalemate);
+    //if depth reached search only capture moves to avoid the horizon Problem
+    if(depth == 0)
+    {
+        return searchCaptures(board, alpha, beta);
+    }
 
     int bestEval = maximize ? numeric_limits<int>::min() : numeric_limits<int>::max();
-
-    board.GenLegalMoveList(legalMoves, check, mate, stalemate);
+    //sort moves
     MoveSorter::sortMoves(legalMoves, board);
     for(const thc::Move& move : legalMoves)
     {
@@ -200,4 +206,34 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int 
     }
 
     return bestEval;
+}
+
+int ChessAI::searchCaptures(thc::ChessRules& board, int alpha, int beta)
+{
+    int eval = Evaluation::evaluateBoardState(board);
+    if(eval >= beta)
+        return beta;
+    alpha = max(alpha, eval);
+
+    //gen moves
+    std::vector<thc::Move> moves;
+    std::vector<bool> check;
+    std::vector<bool> mate;
+    std::vector<bool> stalemate;
+    board.GenLegalMoveList(moves, check, mate, stalemate);
+
+    MoveSorter::sortMoves(moves, board);
+    for(thc::Move mv : moves) {
+        //skip moves that have no capture
+        if(mv.capture == 32)
+            continue;
+
+        thc::ChessRules b = board;
+        b.PlayMove(mv);
+        eval = -searchCaptures(b, -beta, -alpha);
+        if(eval >= beta)
+            return beta;
+        alpha = max(alpha, eval);
+    }
+    return alpha;
 }

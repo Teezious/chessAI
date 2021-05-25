@@ -54,7 +54,7 @@ void MoveSorter::sortMoves(vector<thc::Move>& moves, thc::ChessRules &board) {
 }
 
 void MoveSorter::insertionSort(vector<thc::Move> &moves, int *moveScores) {
-    for(int i = 0; i < moves.size() - 1; i++) {
+    for(int i = 0; i < moves.size(); i++) {
         int j = i + 1;
         int tmpScore = moveScores[j];
         thc::Move tmpMove = moves.at(j);

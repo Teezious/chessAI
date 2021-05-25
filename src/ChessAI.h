@@ -20,6 +20,7 @@ class ChessAI final : public AbstractChessPlayer
   protected:
   private:
     static int minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta, unsigned int *nodesSearched);
+    static int searchCaptures(thc::ChessRules& board, int alpha, int beta);
 };
 
 #endif // CHESSAI_CHESSAI_H
