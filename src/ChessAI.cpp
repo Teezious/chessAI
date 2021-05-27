@@ -14,10 +14,12 @@
 #include <memory>
 #include <thread>
 #include <tuple>
+#include "Opening.h"
 
 using namespace std;
 using namespace std::chrono;
 typedef std::shared_ptr<std::thread> ThreadPtr;
+int Rounds=0;
 class ResultFinder
 {
   public:
@@ -65,8 +67,18 @@ class ResultFinder
     thc::Move mBestMove; // get this mutex before getting or setting new best move
 };
 
+string  ChessAI::Blackopen(int i,int method)
+{
+        return open->BlackTIG[i];
+}
+
 string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
 {
+    if(Rounds<=1 && getIsWhite()==0){
+        string move=Blackopen(Rounds,0);
+        Rounds++;
+        return move;
+    }
     auto start = high_resolution_clock::now();
     unsigned int nodesSearched = 1;
     int eval;
@@ -80,6 +92,7 @@ string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
         cout << "eval: " << eval << " move: " << move << endl;
         cout << "Nodes searched: " << nodesSearched << endl;
     }
+    Rounds++;
     return move;
 }
 

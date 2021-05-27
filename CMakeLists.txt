@@ -13,7 +13,7 @@ add_executable(chessAI
         src/ChessAI.cpp
         src/Evaluation.cpp
         src/Evaluation.h
-        src/thread_pool.cc src/MoveSorter.cpp src/MoveSorter.h)
+        src/thread_pool.cc src/MoveSorter.cpp src/MoveSorter.h src/Opening.cpp src/Opening.h)
 
 add_executable(PerformanceTest
         src/PerformanceMeasurement/PerformanceTester.cpp
