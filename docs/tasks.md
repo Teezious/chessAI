@@ -19,9 +19,18 @@
 - [x] Multithreading implementieren (erledigt von Matthias am 15.04.21)
 
 ## nach 4. Meeting
-- [] Iterative Deepening (Flo)
+- [x] Quiessence Search Deepening (Florian erledigt am 25.05.21)
+- [] Endgame Tactics (Matthias nicht erledigt)
+- [x] Quick-Sort bzw. Merge Sort (erledigt am 24.05.21) implementieren (Florian)
+- [x] Openings (Tu und Dhawal erledigt am 27.05.21)
+- [] Einranken (Dhawal nicht erledigt)
+
+## nach 5. Meeting
+- [] Quiessence Search Deepening fix (Florian und Matthias)
 - [] Endgame Tactics (Matthias)
-- [] Quick-Sort bzw. Merge Sort implementieren (Flo)
-- [] Openings (Tu und Dhawal)
-- [] Einranken (Dhawal)
+- [] Openings verbessern (Tu und Florian)
+- [] Performance measurements mit verschiedenen Depths  (Dhawal)
+- [] Elo ranking (Dhawal)
+- [] (Hashlookup)
+
 

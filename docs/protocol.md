@@ -107,3 +107,32 @@ Bis zum nächsten Meeting:
 - Quick-Sort bzw. Merge Sort implementieren
 - Openings
 ---
+
+## 5. Meeting 
+Datum: 02.06.2021 12:50
+
+Dauer: 15min
+
+Art: mit Betreuer
+
+Anwesend: Chudal Dhawal , Sparr Matthias, Florian Rumpold
+
+Abwesend: Tu Hao
+
+Themen:
+  - kurzes Vorzeigen der neuen Features
+  - langsam auf Präsentation vorbereiten
+  - fehlende Features
+
+Entscheidungen:
+  - Optimierungen
+  - Implementierung der letzten features
+  
+Bis zum nächsten Meeting:
+  - Endgame 
+  - Quiessencesearch
+  - Openings 
+  - Hashlookup
+  - Performance measurements mit verschiedenen Depths
+  - Elo ranking
+---
