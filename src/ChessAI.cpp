@@ -68,7 +68,7 @@ class ResultFinder
 string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
 {
     auto start = high_resolution_clock::now();
-    unsigned int nodesSearched = 1;
+    static std::atomic<unsigned int> nodesSearched = 1;
     int eval;
     string move = multiThreadedSearch(board, &nodesSearched, &eval);
 
@@ -83,7 +83,7 @@ string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
     return move;
 }
 
-std::string ChessAI::multiThreadedSearch(thc::ChessRules board, unsigned int* nodesSearched,
+std::string ChessAI::multiThreadedSearch(thc::ChessRules board, std::atomic<unsigned int> *nodesSearched,
                                          int* bestEval)
 {
     std::vector<bool> check;
@@ -160,7 +160,7 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board, unsigned int* no
 }
 
 int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta,
-                    unsigned int* nodesSearched)
+                    std::atomic<unsigned int> *nodesSearched)
 {
 
     (*nodesSearched)++;
@@ -178,7 +178,8 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int 
     //if depth reached search only capture moves to avoid the horizon Problem
     if(depth == 0)
     {
-        return searchCaptures(board, alpha, beta);
+        //return Evaluation::evaluateBoardState(board);
+        return quiescentSearch(board, alpha, beta, nodesSearched, QUIESCENT_SEARCH_LIMIT);
     }
 
     int bestEval = maximize ? numeric_limits<int>::min() : numeric_limits<int>::max();
@@ -208,12 +209,16 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int 
     return bestEval;
 }
 
-int ChessAI::searchCaptures(thc::ChessRules& board, int alpha, int beta)
+int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta, std::atomic<unsigned int> *nodesSearched, int depth)
 {
-    int eval = Evaluation::evaluateBoardState(board);
-    if(eval >= beta)
+    (*nodesSearched)++;
+    int standPat = Evaluation::evaluateBoardState(board);
+    if(depth == 0)
+        return standPat;
+
+    if(standPat >= beta)
         return beta;
-    alpha = max(alpha, eval);
+    alpha = max(alpha, standPat);
 
     //gen moves
     std::vector<thc::Move> moves;
@@ -230,10 +235,11 @@ int ChessAI::searchCaptures(thc::ChessRules& board, int alpha, int beta)
 
         thc::ChessRules b = board;
         b.PlayMove(mv);
-        eval = -searchCaptures(b, -beta, -alpha);
-        if(eval >= beta)
+        int score = -quiescentSearch(b, -beta, -alpha, nodesSearched, depth - 1);
+
+        if(score >= beta)
             return beta;
-        alpha = max(alpha, eval);
+        alpha = max(alpha, score);
     }
     return alpha;
 }

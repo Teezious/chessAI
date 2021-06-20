@@ -43,12 +43,12 @@ void PerformanceTester::runPerformanceTest() {
         ai.setIsWhite(board.WhiteToPlay());
         cout << "TESTING SCENARIO" << endl << board.ToDebugStr() << endl << endl;
         double sumTimeSeconds = 0;
-        unsigned int sumNodes = 0;
+        unsigned long long sumNodes = 0;
         for(int i = 0; i < NUMBER_TESTS; i++)
         {
             cout << "-----TEST NUMBER " << i+1 << " -----" << endl;
             auto start = high_resolution_clock::now();
-            unsigned int nodesSearched = 1;
+            std::atomic<unsigned int> nodesSearched = 1;
             int eval;
             string move = ai.multiThreadedSearch(board, &nodesSearched, &eval);
             auto stop = high_resolution_clock::now();
