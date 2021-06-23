@@ -61,7 +61,6 @@ void ChessGame::gameHandler()
                 move = blackPlayer->chooseMove(board);
             } while(!mv.TerseIn(&board, move.c_str()));
         }
-        cout << move << endl;
         board.PlayMove(mv);
         thc::TERMINAL evalPosition; // what does this code do?
         bool legal = board.Evaluate(evalPosition);

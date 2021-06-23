@@ -30,5 +30,7 @@ add_executable(PerformanceTest
 add_subdirectory("${PROJECT_SOURCE_DIR}/lib/thc" EXCLUDE_FROM_ALL)
 include_directories(${THC_CHESS_INCLUDE})
 target_link_libraries(chessAI thc_chess_static)
-target_link_libraries(PerformanceTest thc_chess_static)
 target_link_libraries(chessAI ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(PerformanceTest thc_chess_static)
+target_link_libraries(PerformanceTest ${CMAKE_THREAD_LIBS_INIT})
+
