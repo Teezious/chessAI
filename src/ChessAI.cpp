@@ -74,11 +74,19 @@ string  ChessAI::Blackopen(int i,int method)
 
 string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
 {
+
     if(Rounds<=1 && getIsWhite()==0){
+        if(board.squares[35]=='P' || board.squares[37]=='P'){
+               return "d7d6";
+           }
+           if(board.squares[36]=='P'){
+               return "c7c5";
+           }
         string move=Blackopen(Rounds,0);
         Rounds++;
         return move;
     }
+
     auto start = high_resolution_clock::now();
     unsigned int nodesSearched = 1;
     int eval;
