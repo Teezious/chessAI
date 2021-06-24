@@ -43,10 +43,12 @@ void ChessGame::gameHandler()
     string move;
     thc::Move mv;
 
+    // string endgame1 = "4k3/8/8/8/8/8/5R2/R3K3 w - - 0 1";
+    // string endgame = "4k3/8/8/8/8/8/8/R3K3 w - - 0 1";
+    // board.Forsyth(endgame1.c_str());
     while(1)
     {
         printBoardState();
-
         if(whitesMove)
         {
             do
@@ -62,21 +64,28 @@ void ChessGame::gameHandler()
             } while(!mv.TerseIn(&board, move.c_str()));
         }
         board.PlayMove(mv);
-        thc::TERMINAL evalPosition; // what does this code do?
+        thc::TERMINAL evalPosition;
+
         bool legal = board.Evaluate(evalPosition);
         bool mateWhite = (evalPosition == thc::TERMINAL_WCHECKMATE);
         bool mateBlack = (evalPosition == thc::TERMINAL_BCHECKMATE);
-
-        // TODO check three fold repetition
-        // TODO draws
-        // check mate, stalemate
-        if(mateBlack || mateWhite)
+        thc::DRAWTYPE eval_draw;
+        board.IsDraw(whitesMove, eval_draw);
+        if(eval_draw == thc::DRAWTYPE_50MOVE || eval_draw == thc::DRAWTYPE_REPITITION ||
+           eval_draw == thc::DRAWTYPE_INSUFFICIENT_AUTO)
+        {
+            cout << " Draw" << endl;
             break;
+        }
+        else if(mateBlack || mateWhite)
+        {
+            string winner = whitesMove ? "White" : "Black";
+            cout << winner << " won" << endl;
+            break;
+        }
 
         whitesMove = !whitesMove;
     }
-    string winner = whitesMove ? "White" : "Black";
-    cout << winner << " won" << endl;
 }
 
 // temporary function

@@ -25,7 +25,7 @@ class ChessAI final : public AbstractChessPlayer
     static int minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta,
                       std::atomic<unsigned int>* nodesSearched);
     static int quiescentSearch(thc::ChessRules& board, int alpha, int beta,
-                               std::atomic<unsigned int>* nodesSearched, int depth);
+                               std::atomic<unsigned int>* nodesSearched, int depth, bool isWhite);
 };
 
 #endif // CHESSAI_CHESSAI_H

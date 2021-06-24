@@ -91,17 +91,37 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int 
                     std::atomic<unsigned int>* nodesSearched)
 {
     // TODO detect check mate
+
+    thc::DRAWTYPE eval_draw;
+    board.IsDraw(maximize, eval_draw);
+    if(eval_draw == thc::DRAWTYPE_50MOVE || eval_draw == thc::DRAWTYPE_REPITITION ||
+       eval_draw == thc::DRAWTYPE_INSUFFICIENT_AUTO)
+    {
+        return 0;
+    }
+
     thc::TERMINAL eval_final_position;
     board.Evaluate(eval_final_position);
     if(eval_final_position != 0)
     {
-        return Evaluation::evaluateBoardState(board);
+        if(eval_final_position != 2 && eval_final_position != -2)
+        {
+            return 0;
+        }
+        else if(eval_final_position == 1)
+        {
+            return std::numeric_limits<int>::max();
+        }
+        else
+        {
+            return std::numeric_limits<int>::min();
+        }
     }
-
     if(depth == 0)
     {
-        return quiescentSearch(board, alpha, beta, nodesSearched, QUIESCENT_SEARCH_LIMIT);
+        return quiescentSearch(board, alpha, beta, nodesSearched, QUIESCENT_SEARCH_LIMIT, maximize);
     }
+
     (*nodesSearched)++;
     std::vector<thc::Move> legalMoves;
     std::vector<bool> check;
@@ -210,20 +230,39 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
     pool.Wait(); // wait for all threds to finish
     while(result->getMoveCount() != expectedMoveCount)
     {
-        this_thread::sleep_for(200ms);
+        this_thread::sleep_for(5ms);
     }
     *bestEval = result->getBestEval();
     return result->getBestMove().TerseOut();
 }
 
 int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
-                             std::atomic<unsigned int>* nodesSearched, int depth)
+                             std::atomic<unsigned int>* nodesSearched, int depth, bool isWhite)
 {
+    thc::DRAWTYPE eval_draw;
+    board.IsDraw(isWhite, eval_draw);
+    if(eval_draw == thc::DRAWTYPE_50MOVE || eval_draw == thc::DRAWTYPE_REPITITION ||
+       eval_draw == thc::DRAWTYPE_INSUFFICIENT_AUTO)
+    {
+        return 0;
+    }
+
     thc::TERMINAL eval_final_position;
     board.Evaluate(eval_final_position);
     if(eval_final_position != 0)
     {
-        return Evaluation::evaluateBoardState(board);
+        if(eval_final_position != 2 && eval_final_position != -2)
+        {
+            return 0;
+        }
+        else if(eval_final_position == 1)
+        {
+            return std::numeric_limits<int>::max();
+        }
+        else
+        {
+            return std::numeric_limits<int>::min();
+        }
     }
 
     (*nodesSearched)++;
@@ -253,7 +292,7 @@ int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
 
         thc::ChessRules b = board;
         b.PlayMove(mv);
-        int score = -quiescentSearch(b, -beta, -alpha, nodesSearched, depth - 1);
+        int score = -quiescentSearch(b, -beta, -alpha, nodesSearched, depth - 1, !isWhite);
 
         if(score >= beta)
             return beta;
