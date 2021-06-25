@@ -700,6 +700,10 @@ class ChessRules : public ChessPosition
     // Test fundamental internal assumptions and operations
     void TestInternals();
 
+    // Move history is a ring array
+    Move history[256]; // must be 256 ..
+    unsigned char history_idx; // .. so this loops around naturally
+
     // Private stuff
   protected:
     // Generate a list of all possible moves in a position (including
@@ -725,10 +729,6 @@ class ChessRules : public ChessPosition
     bool Evaluate(MOVELIST* list, TERMINAL& score_terminal);
 
     //### Data
-
-    // Move history is a ring array
-    Move history[256]; // must be 256 ..
-    unsigned char history_idx; // .. so this loops around naturally
 
     // Detail stack is a ring array
     DETAIL detail_stack[256]; // must be 256 ..

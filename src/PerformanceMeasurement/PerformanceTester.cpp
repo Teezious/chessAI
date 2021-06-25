@@ -17,7 +17,6 @@ void PerformanceTester::runPerformanceTest() {
     vector<string> FENs;
     ifstream inFile;
     string line;
-    char in;
     thc::ChessRules board;
     ChessAI ai(true);
 

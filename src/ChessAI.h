@@ -9,8 +9,9 @@
 #include <iostream>
 #include <limits>
 
-#define SEARCH_DEPTH 5 // recommended 5 as 6 currently takes 30second + per move
+#define SEARCH_DEPTH 4 // recommended 5 as 6 currently takes 30second + per move
 #define QUIESCENT_SEARCH_LIMIT 4
+#define OPENING_MOVE_LIMIT 3
 
 class ChessAI final : public AbstractChessPlayer
 {

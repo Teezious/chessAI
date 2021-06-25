@@ -7,27 +7,22 @@ using namespace std;
 #include "Opening.h"
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
-thc::Move Opening::getOpeningMove(thc::ChessRules& board, int moveNumber)
+string Opening::getOpeningMove(thc::ChessRules& board)
 {
     fstream inFile;
     string line;
     inFile.open("../resources/GrandMasterGames/GMGames.txt");
-    thc::Move bestOpeningMove;
-    //if its the first move to be played, choose one
-    if(moveNumber == 0) {
-        getline(inFile, line);
-        thc::Move mv;
-        mv.NaturalIn(&board, )
-    }
+    string bestOpeningMove;
+    int moveNumber = board.history_idx;
 
 
     //else find a game where the same opening moves are played as in the current one
-    while(true) {
+    while(getline(inFile, line)) {
         bool sameMoves = true;
         string openingMovesNatural[moveNumber + 1];
         string openingMovesTerse[moveNumber + 1];
-        getline(inFile, line);
 
         //split the string
         stringstream ssin(line);
@@ -36,31 +31,37 @@ thc::Move Opening::getOpeningMove(thc::ChessRules& board, int moveNumber)
             ssin >> openingMovesNatural[i];
             ++i;
         }
-        //convert from Natural to Terse
         thc::ChessRules tmpBoard;
+        //if its the first move to be played, choose one
+        if(moveNumber == 1) {
+            thc::Move mv;
+            mv.NaturalIn(&tmpBoard, openingMovesNatural[0].c_str());
+            inFile.close();
+            return mv.TerseOut();
+        }
+
+        //convert from Natural to Terse
+
         for(int j = 0; j < moveNumber + 1; j++) {
             thc::Move mv;
             mv.NaturalIn(&tmpBoard, openingMovesNatural[j].c_str());
-            tmpBoard.PlayMove(mv);
             openingMovesTerse[j] = mv.TerseOut();
+            tmpBoard.PlayMove(mv);
         }
 
         //compare history with the current game
-        for(int j = 0; j < moveNumber; j++) {
+        for(int j = 0; j < moveNumber - 1; j++) {
             if(openingMovesTerse[j] != board.history[j+1].TerseOut()) {
                 sameMoves = false;
                 break;
             }
         }
-        if(sameMoves) {
-            thc::Move mv;
-            mv.TerseIn(&board, openingMovesTerse[moveNumber].c_str());
-            return mv;
+        if(sameMoves)
+        {
+            inFile.close();
+            return openingMovesTerse[moveNumber - 1];
         }
-
-
-
-
     }
-    inFile.close();
+    //if no opening found return null and run a search
+    return "";
 }

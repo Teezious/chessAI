@@ -11,7 +11,7 @@
 class Opening
 {
   public:
-    static thc::Move getOpeningMove(thc::ChessRules& board, int moveNumber);
+    static std::string getOpeningMove(thc::ChessRules& board);
 
 };
 

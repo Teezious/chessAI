@@ -8,6 +8,7 @@
 #include <assert.h>
 //#include <bits/stdc++.h>
 #include "MoveSorter.h"
+#include "Opening.h"
 #include <chrono>
 #include <iostream>
 #include <limits>
@@ -71,18 +72,32 @@ class ResultFinder
 
 string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
 {
-    auto start = high_resolution_clock::now();
-    static std::atomic<unsigned int> nodesSearched = 0;
-    int eval;
-    string move = multiThreadedSearch(board, &nodesSearched, &eval);
-
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>(stop - start);
-    if(printResults)
+    bool OpeningFound = false;
+    string move;
+    if(board.history_idx <= OPENING_MOVE_LIMIT * 2)
     {
-        cout << "Minmax finished in " << duration.count() / 1000.0 << " seconds" << endl;
-        cout << "eval: " << eval << " move: " << move << endl;
-        cout << "Nodes searched: " << nodesSearched << endl;
+        move = Opening::getOpeningMove(board);
+        if(move != "")
+        {
+            OpeningFound = true;
+            cout << "Move: " << move << endl;
+        }
+    }
+    if(!OpeningFound)
+    {
+        auto start = high_resolution_clock::now();
+        static std::atomic<unsigned int> nodesSearched = 0;
+        int eval;
+        move = multiThreadedSearch(board, &nodesSearched, &eval);
+
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<milliseconds>(stop - start);
+        if(printResults)
+        {
+            cout << "Minmax finished in " << duration.count() / 1000.0 << " seconds" << endl;
+            cout << "eval: " << eval << " move: " << move << endl;
+            cout << "Nodes searched: " << nodesSearched << endl;
+        }
     }
     return move;
 }
