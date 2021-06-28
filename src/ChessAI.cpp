@@ -88,7 +88,7 @@ string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
 }
 
 int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta,
-                    std::atomic<unsigned int>* nodesSearched)
+                    std::atomic<unsigned int>* nodesSearched, int lastEval)
 {
     // TODO detect check mate
 
@@ -99,6 +99,10 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int 
     {
         return 0;
     }
+    // else if(board.GetRepetitionCount() > 0 && lastEval > 100)
+    // {
+    //     return 0;
+    // }
 
     thc::TERMINAL eval_final_position;
     board.Evaluate(eval_final_position);
@@ -119,7 +123,7 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int 
     }
     if(depth == 0)
     {
-        return quiescentSearch(board, alpha, beta, nodesSearched, -depth, maximize);
+        return quiescentSearch(board, alpha, beta, nodesSearched, -depth, maximize, lastEval);
     }
 
     (*nodesSearched)++;
@@ -137,7 +141,7 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int 
         thc::ChessRules b = board;
         b.PlayMove(move);
         int val;
-        val = minMax(b, depth - 1, !maximize, alpha, beta, nodesSearched);
+        val = minMax(b, depth - 1, !maximize, alpha, beta, nodesSearched, lastEval);
 
         if(maximize)
         {
@@ -182,9 +186,9 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
             pool.Schedule([&]() {
                 thc::ChessRules b = board;
                 b.PlayMove(move); // push every possible move
-                int moveEval =
-                    minMax(b, SEARCH_DEPTH - 1, !isWhite, result->getBestEval(),
-                           std::numeric_limits<int>::max(), nodesSearched); // maybe mutex here
+                int moveEval = minMax(b, SEARCH_DEPTH - 1, !isWhite, result->getBestEval(),
+                                      std::numeric_limits<int>::max(), nodesSearched,
+                                      lastEval); // maybe mutex here
                 {
                     std::lock_guard<std::mutex> lock{result->getMutex()};
                     {
@@ -211,7 +215,7 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
                 b.PlayMove(move);
                 int moveEval =
                     minMax(b, SEARCH_DEPTH - 1, !isWhite, std::numeric_limits<int>::min(),
-                           result->getBestEval(), nodesSearched); // maybe mutex here
+                           result->getBestEval(), nodesSearched, lastEval); // maybe mutex here
                 {
                     std::lock_guard<std::mutex> lock{result->getMutex()};
                     {
@@ -233,11 +237,13 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
         this_thread::sleep_for(5ms);
     }
     *bestEval = result->getBestEval();
+    lastEval = abs(result->getBestEval());
     return result->getBestMove().TerseOut();
 }
 
 int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
-                             std::atomic<unsigned int>* nodesSearched, int depth, bool isWhite)
+                             std::atomic<unsigned int>* nodesSearched, int depth, bool isWhite,
+                             int lastEval)
 {
     thc::DRAWTYPE eval_draw;
     board.IsDraw(isWhite, eval_draw);
@@ -246,6 +252,10 @@ int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
     {
         return 0;
     }
+    // else if(board.GetRepetitionCount() > 0 && lastEval > 100)
+    // {
+    //     return 0;
+    // }
 
     thc::TERMINAL eval_final_position;
     board.Evaluate(eval_final_position);
@@ -293,7 +303,7 @@ int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
 
         thc::ChessRules b = board;
         b.PlayMove(mv);
-        int val = quiescentSearch(b, beta, alpha, nodesSearched, depth - 1, !isWhite);
+        int val = quiescentSearch(b, beta, alpha, nodesSearched, depth - 1, !isWhite, lastEval);
 
         if(isWhite)
         {

@@ -16,17 +16,19 @@
 class ChessAI final : public AbstractChessPlayer
 {
   public:
-    ChessAI(bool isWhite) : AbstractChessPlayer(isWhite){};
+    ChessAI(bool isWhite) : lastEval{0}, AbstractChessPlayer(isWhite){};
     std::string chooseMove(thc::ChessRules board, bool printResults = true);
     std::string multiThreadedSearch(thc::ChessRules board, std::atomic<unsigned int>* nodesSearched,
                                     int* bestEval);
 
   protected:
   private:
+    int lastEval;
     static int minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta,
-                      std::atomic<unsigned int>* nodesSearched);
+                      std::atomic<unsigned int>* nodesSearched, int lastEval);
     static int quiescentSearch(thc::ChessRules& board, int alpha, int beta,
-                               std::atomic<unsigned int>* nodesSearched, int depth, bool isWhite);
+                               std::atomic<unsigned int>* nodesSearched, int depth, bool isWhite,
+                               int lastEval);
 };
 
 #endif // CHESSAI_CHESSAI_H
