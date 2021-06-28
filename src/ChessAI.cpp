@@ -104,22 +104,22 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int 
     board.Evaluate(eval_final_position);
     if(eval_final_position != 0)
     {
-        if(eval_final_position != 2 && eval_final_position != -2)
+        if(eval_final_position == 2 && eval_final_position == -2)
         {
             return 0;
         }
         else if(eval_final_position == 1)
         {
-            return std::numeric_limits<int>::max();
+            return MAXEVAL + depth;
         }
         else
         {
-            return std::numeric_limits<int>::min();
+            return -MAXEVAL - depth;
         }
     }
     if(depth == 0)
     {
-        return quiescentSearch(board, alpha, beta, nodesSearched, QUIESCENT_SEARCH_LIMIT, maximize);
+        return quiescentSearch(board, alpha, beta, nodesSearched, -depth, maximize);
     }
 
     (*nodesSearched)++;
@@ -172,7 +172,7 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
     int expectedMoveCount = legalMoves.size();
     int cores = (int)(cb::ThreadPool::GetNumLogicalCores()) * 2 / 3;
 
-    cb::ThreadPool pool(cores); // generates thread pool
+    cb::ThreadPool pool(1); // generates thread pool
     if(isWhite)
     {
         result = std::make_shared<ResultFinder>(
@@ -251,30 +251,27 @@ int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
     board.Evaluate(eval_final_position);
     if(eval_final_position != 0)
     {
-        if(eval_final_position != 2 && eval_final_position != -2)
+        if(eval_final_position == 2 || eval_final_position == -2)
         {
             return 0;
         }
         else if(eval_final_position == 1)
         {
-            return std::numeric_limits<int>::max();
+            return MAXEVAL + depth;
         }
         else
         {
-            return std::numeric_limits<int>::min();
+            return -MAXEVAL - depth;
         }
     }
-
     (*nodesSearched)++;
-    int standPat = Evaluation::evaluateBoardState(board);
-    if(standPat >= beta)
-        return beta;
-    if(depth == 0)
-    {
-        return standPat;
-    }
 
-    alpha = max(alpha, standPat);
+    int val;
+    int bestEval = Evaluation::evaluateBoardState(board);
+    // if(depth == 0)
+    // {
+    //     return standPat;
+    // }
 
     // gen moves
     std::vector<thc::Move> moves;
@@ -284,19 +281,36 @@ int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
     board.GenLegalMoveList(moves, check, mate, stalemate);
 
     MoveSorter::sortMoves(moves, board);
+    int i = 0;
     for(const thc::Move& mv : moves)
     {
         // skip moves that have no capture
-        if(mv.capture == 32)
+        if(mv.capture == 32 && check[i] == false)
+        {
+            ++i;
             continue;
+        }
 
         thc::ChessRules b = board;
         b.PlayMove(mv);
-        int score = -quiescentSearch(b, -beta, -alpha, nodesSearched, depth - 1, !isWhite);
+        int val = quiescentSearch(b, beta, alpha, nodesSearched, depth - 1, !isWhite);
 
-        if(score >= beta)
-            return beta;
-        alpha = max(alpha, score);
+        if(isWhite)
+        {
+            bestEval = max(bestEval, val);
+            alpha = max(alpha, val);
+        }
+        else
+        {
+            bestEval = min(bestEval, val);
+            beta = min(beta, val);
+        }
+        if(beta <= alpha)
+        {
+            break;
+        }
+        ++i;
     }
-    return alpha;
+
+    return bestEval;
 }
