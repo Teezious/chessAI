@@ -52,8 +52,8 @@ void MoveSorter::sortMoves(vector<thc::Move>& moves, thc::ChessRules& board)
         moveScores.push_back(moveScore);
     }
     // sort moves, maybe try out a few other sorting algorithms?
-    quickSort(moves, moveScores, 0, moves.size() - 1);
-    // insertionSort(moves, moveScores);
+    // quickSort(moves, moveScores, 0, moves.size() - 1);
+    insertionSort(moves, moveScores);
 }
 
 void MoveSorter::insertionSort(vector<thc::Move>& moves, std::vector<int> moveScores)

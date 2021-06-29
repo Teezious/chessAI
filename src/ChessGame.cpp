@@ -43,11 +43,6 @@ void ChessGame::gameHandler()
     string move;
     thc::Move mv;
 
-    string endgame1 = "4k3/8/8/8/8/8/5R2/R3K3 w - - 0 1";
-    string mateIn3 = "3r3k/4r3/8/8/8/8/8/2K5 w - - 0 1";
-    string mateIn1 = "1r5k/2r5/8/8/8/8/8/K7 w - - 0 1";
-    string endgame = "4k3/8/8/8/8/8/8/R3K3 w - - 0 1";
-    board.Forsyth(endgame.c_str());
     while(1)
     {
         printBoardState();
@@ -68,9 +63,9 @@ void ChessGame::gameHandler()
         board.PlayMove(mv);
 
         thc::TERMINAL evalPosition;
-        board.Evaluate(evalPosition);
+        board.Evaluate(evalPosition); // detect mate
         thc::DRAWTYPE eval_draw;
-        board.IsDraw(whitesMove, eval_draw);
+        board.IsDraw(board.white, eval_draw); // detect draw
         if(eval_draw == thc::DRAWTYPE_50MOVE || eval_draw == thc::DRAWTYPE_REPITITION ||
            eval_draw == thc::DRAWTYPE_INSUFFICIENT_AUTO)
         {

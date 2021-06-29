@@ -4,10 +4,9 @@
 
 #include "ChessAI.h"
 #include "Evaluation.h"
+#include "MoveSorter.h"
 #include "thread_pool.h"
 #include <assert.h>
-//#include <bits/stdc++.h>
-#include "MoveSorter.h"
 #include <chrono>
 #include <iostream>
 #include <limits>
@@ -18,6 +17,7 @@
 using namespace std;
 using namespace std::chrono;
 typedef std::shared_ptr<std::thread> ThreadPtr;
+int ChessAI::lastEval = 0;
 class ResultFinder
 {
   public:
@@ -87,79 +87,6 @@ string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
     return move;
 }
 
-int ChessAI::minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta,
-                    std::atomic<unsigned int>* nodesSearched, int lastEval)
-{
-    // TODO detect check mate
-
-    thc::DRAWTYPE eval_draw;
-    board.IsDraw(maximize, eval_draw);
-    if(eval_draw == thc::DRAWTYPE_50MOVE || eval_draw == thc::DRAWTYPE_REPITITION ||
-       eval_draw == thc::DRAWTYPE_INSUFFICIENT_AUTO)
-    {
-        return 0;
-    }
-    // else if(board.GetRepetitionCount() > 0 && lastEval > 100)
-    // {
-    //     return 0;
-    // }
-
-    thc::TERMINAL eval_final_position;
-    board.Evaluate(eval_final_position);
-    if(eval_final_position != 0)
-    {
-        if(eval_final_position == 2 && eval_final_position == -2)
-        {
-            return 0;
-        }
-        else if(eval_final_position == 1)
-        {
-            return MAXEVAL + depth;
-        }
-        else
-        {
-            return -MAXEVAL - depth;
-        }
-    }
-    if(depth == 0)
-    {
-        return quiescentSearch(board, alpha, beta, nodesSearched, -depth, maximize, lastEval);
-    }
-
-    (*nodesSearched)++;
-    std::vector<thc::Move> legalMoves;
-    std::vector<bool> check;
-    std::vector<bool> mate;
-    std::vector<bool> stalemate;
-
-    int bestEval = maximize ? numeric_limits<int>::min() : numeric_limits<int>::max();
-
-    board.GenLegalMoveList(legalMoves, check, mate, stalemate);
-    MoveSorter::sortMoves(legalMoves, board);
-    for(const thc::Move& move : legalMoves)
-    {
-        thc::ChessRules b = board;
-        b.PlayMove(move);
-        int val;
-        val = minMax(b, depth - 1, !maximize, alpha, beta, nodesSearched, lastEval);
-
-        if(maximize)
-        {
-            bestEval = max(bestEval, val);
-            alpha = max(alpha, val);
-        }
-        else
-        {
-            bestEval = min(bestEval, val);
-            beta = min(beta, val);
-        }
-        if(beta <= alpha)
-            break;
-    }
-
-    return bestEval;
-}
-
 std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
                                          std::atomic<unsigned int>* nodesSearched, int* bestEval)
 {
@@ -175,8 +102,7 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
     ResultFinder::Ptr result; // result will be saved here
     int expectedMoveCount = legalMoves.size();
     int cores = (int)(cb::ThreadPool::GetNumLogicalCores()) * 2 / 3;
-
-    cb::ThreadPool pool(1); // generates thread pool
+    cb::ThreadPool pool(cores); // generates thread pool
     if(isWhite)
     {
         result = std::make_shared<ResultFinder>(
@@ -186,9 +112,9 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
             pool.Schedule([&]() {
                 thc::ChessRules b = board;
                 b.PlayMove(move); // push every possible move
-                int moveEval = minMax(b, SEARCH_DEPTH - 1, !isWhite, result->getBestEval(),
-                                      std::numeric_limits<int>::max(), nodesSearched,
-                                      lastEval); // maybe mutex here
+                int moveEval =
+                    minMax(b, SEARCH_DEPTH - 1, result->getBestEval(),
+                           std::numeric_limits<int>::max(), nodesSearched); // maybe mutex here
                 {
                     std::lock_guard<std::mutex> lock{result->getMutex()};
                     {
@@ -213,9 +139,8 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
             pool.Schedule([&]() {
                 thc::ChessRules b = board;
                 b.PlayMove(move);
-                int moveEval =
-                    minMax(b, SEARCH_DEPTH - 1, !isWhite, std::numeric_limits<int>::min(),
-                           result->getBestEval(), nodesSearched, lastEval); // maybe mutex here
+                int moveEval = minMax(b, SEARCH_DEPTH - 1, std::numeric_limits<int>::min(),
+                                      result->getBestEval(), nodesSearched); // maybe mutex here
                 {
                     std::lock_guard<std::mutex> lock{result->getMutex()};
                     {
@@ -237,75 +162,141 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
         this_thread::sleep_for(5ms);
     }
     *bestEval = result->getBestEval();
-    lastEval = abs(result->getBestEval());
+    lastEval = abs(result->getBestEval()); // save last eval
     return result->getBestMove().TerseOut();
 }
 
+// search reduced search tree by only checking for checks and captures
 int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
-                             std::atomic<unsigned int>* nodesSearched, int depth, bool isWhite,
-                             int lastEval)
+                             std::atomic<unsigned int>* nodesSearched, int depth)
 {
     thc::DRAWTYPE eval_draw;
-    board.IsDraw(isWhite, eval_draw);
+    board.IsDraw(board.white, eval_draw); // detect draw
     if(eval_draw == thc::DRAWTYPE_50MOVE || eval_draw == thc::DRAWTYPE_REPITITION ||
        eval_draw == thc::DRAWTYPE_INSUFFICIENT_AUTO)
     {
-        return 0;
+        return 0; // if draw return 0
     }
-    // else if(board.GetRepetitionCount() > 0 && lastEval > 100)
-    // {
-    //     return 0;
-    // }
+    else if(board.GetRepetitionCount() > 1 && lastEval > 100)
+    {
+        return 0; // if leading and prevent repetition
+    }
 
     thc::TERMINAL eval_final_position;
-    board.Evaluate(eval_final_position);
+    board.Evaluate(eval_final_position); // detect mate
     if(eval_final_position != 0)
     {
-        if(eval_final_position == 2 || eval_final_position == -2)
+        if(eval_final_position == 2 || eval_final_position == -2) // stalemate
         {
             return 0;
         }
-        else if(eval_final_position == 1)
+        else if(eval_final_position == 1) // black is checkmated
         {
-            return MAXEVAL + depth;
+            return MAXEVAL + depth; // return max value, add depth to reward faster checkmates
         }
         else
         {
             return -MAXEVAL - depth;
         }
     }
+
+    int standPat = Evaluation::evaluateBoardState(board);
+    if(standPat >= beta)
+    {
+        return beta;
+    }
+    if(depth == 0)
+    {
+        return standPat;
+    }
     (*nodesSearched)++;
 
-    int val;
-    int bestEval = Evaluation::evaluateBoardState(board);
-    // if(depth == 0)
-    // {
-    //     return standPat;
-    // }
+    alpha = max(alpha, standPat);
 
     // gen moves
     std::vector<thc::Move> moves;
     std::vector<bool> check;
     std::vector<bool> mate;
     std::vector<bool> stalemate;
+    int i = 0;
     board.GenLegalMoveList(moves, check, mate, stalemate);
 
     MoveSorter::sortMoves(moves, board);
-    int i = 0;
     for(const thc::Move& mv : moves)
     {
-        // skip moves that have no capture
+        // skip moves that have no capture and no check
         if(mv.capture == 32 && check[i] == false)
-        {
-            ++i;
             continue;
-        }
 
         thc::ChessRules b = board;
         b.PlayMove(mv);
-        int val = quiescentSearch(b, beta, alpha, nodesSearched, depth - 1, !isWhite, lastEval);
+        int score = -quiescentSearch(b, -beta, -alpha, nodesSearched, depth - 1);
 
-        if(isWhite)
+        if(score >= beta)
+            return beta;
+        alpha = max(alpha, score);
+        ++i;
+    }
+    return alpha;
+}
+
+int ChessAI::minMax(thc::ChessRules& board, const int depth, int alpha, int beta,
+                    std::atomic<unsigned int>* nodesSearched)
+{
+    // TODO detect check mate
+
+    thc::DRAWTYPE eval_draw;
+    board.IsDraw(board.white, eval_draw); // detect draw
+    if(eval_draw == thc::DRAWTYPE_50MOVE || eval_draw == thc::DRAWTYPE_REPITITION ||
+       eval_draw == thc::DRAWTYPE_INSUFFICIENT_AUTO)
+    {
+        return 0; // when draw return 0
+    }
+    else if(board.GetRepetitionCount() > 1 && lastEval > 100)
+    {
+        return 0; // prevent going for draw when having a lead
+    }
+
+    thc::TERMINAL eval_final_position;
+    board.Evaluate(eval_final_position); // detect mate
+    if(eval_final_position != 0)
+    {
+        if(eval_final_position == 2 && eval_final_position == -2) // stalemate
+        {
+            return 0;
+        }
+        else if(eval_final_position == 1) // black is checkmated
+        {
+            return MAXEVAL + depth; // return max value, add depth to reward faster checkmates
+        }
+        else
+        {
+            return -MAXEVAL - depth;
+        }
+    }
+    if(depth == 0)
+    {
+        return quiescentSearch(board, alpha, beta, nodesSearched, QUIESCENT_SEARCH_LIMIT);
+    }
+
+    (*nodesSearched)++;
+    std::vector<thc::Move> legalMoves;
+    std::vector<bool> check;
+    std::vector<bool> mate;
+    std::vector<bool> stalemate;
+
+    int bestEval = board.white ? numeric_limits<int>::min() : numeric_limits<int>::max();
+
+    board.GenLegalMoveList(legalMoves, check, mate, stalemate);
+    MoveSorter::sortMoves(legalMoves, board);
+    for(const thc::Move& move : legalMoves)
+    {
+        thc::ChessRules b = board;
+        b.PlayMove(move);
+        int val;
+        val = minMax(b, depth - 1, alpha, beta, nodesSearched);
+
+        if(board.white)
         {
             bestEval = max(bestEval, val);
             alpha = max(alpha, val);
@@ -316,10 +307,7 @@ int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
             beta = min(beta, val);
         }
         if(beta <= alpha)
-        {
             break;
-        }
-        ++i;
     }
 
     return bestEval;

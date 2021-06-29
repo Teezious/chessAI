@@ -4,16 +4,17 @@
 
 #include "PerformanceTester.h"
 #include <ChessAI.h>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <thc.h>
 #include <vector>
-#include <chrono>
 
 using namespace std;
 using namespace chrono;
 
-void PerformanceTester::runPerformanceTest() {
+void PerformanceTester::runPerformanceTest()
+{
     vector<string> FENs;
     ifstream inFile;
     string line;
@@ -21,10 +22,10 @@ void PerformanceTester::runPerformanceTest() {
     thc::ChessRules board;
     ChessAI ai(true);
 
-
-    //read Scenarios
+    // read Scenarios
     int i = 1;
-    while(true) {
+    while(true)
+    {
         inFile.open(scenarioPath + to_string(i) + ".txt");
         if(!inFile.is_open())
             break;
@@ -34,19 +35,22 @@ void PerformanceTester::runPerformanceTest() {
         i++;
     }
 
-    //measure performance
-    for(string FEN : FENs) {
-        if(!board.Forsyth(FEN.c_str())) {
+    // measure performance
+    int scenario = 1;
+    for(string FEN : FENs)
+    {
+        if(!board.Forsyth(FEN.c_str()))
+        {
             cout << "Error while setting board state!" << endl;
             continue;
         }
         ai.setIsWhite(board.WhiteToPlay());
-        cout << "TESTING SCENARIO" << endl << board.ToDebugStr() << endl << endl;
+        cout << "TESTING SCENARIO " << scenario << endl << board.ToDebugStr() << endl << endl;
         double sumTimeSeconds = 0;
         unsigned long long sumNodes = 0;
         for(int i = 0; i < NUMBER_TESTS; i++)
         {
-            cout << "-----TEST NUMBER " << i+1 << " -----" << endl;
+            cout << "-----TEST NUMBER " << i + 1 << " -----" << endl;
             auto start = high_resolution_clock::now();
             std::atomic<unsigned int> nodesSearched = 1;
             int eval;
@@ -62,10 +66,11 @@ void PerformanceTester::runPerformanceTest() {
             sumNodes += nodesSearched;
         }
         cout << "STATISTICS:" << endl;
-        cout << "\tTime average: " << sumTimeSeconds/NUMBER_TESTS << " seconds" << endl;
-        cout << "\tNodes searched average: " << sumNodes/NUMBER_TESTS << endl << endl;
+        cout << "\tTime average: " << sumTimeSeconds / NUMBER_TESTS << " seconds" << endl;
+        cout << "\tNodes searched average: " << sumNodes / NUMBER_TESTS << endl << endl;
         cout << "******************************************" << endl << endl;
+        ++scenario;
     }
 
-    //write results to Logfile?
+    // write results to Logfile?
 }

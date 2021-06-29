@@ -12,24 +12,21 @@ using namespace std;
 int Evaluation::evaluateBoardState(thc::ChessRules board)
 {
     int pos = 0;
-    int wmat = 0;
-    int bmat = 0;
-    int bpawn = 0;
-    int wpawn = 0;
-    int weval = 0;
-    int beval = 0;
+    int wmat = 0; // white material
+    int bmat = 0; // black material
+    int bpawn = 0; // black pawn material
+    int wpawn = 0; // white pawn material
+    int weval = 0; // white eval
+    int beval = 0; // black eval
 
-    // int wkingval = 0;
-    // int bkingval = 0;
+    int wKingRank = 0; // white King Rank
+    int wKingFile = 0; // white King File
+    int wKingPos = 0; // White King Pos
+    int bKingRank = 0; // black  King Rank
+    int bKingFile = 0; // black  King File
+    int bKingPos = 0; // black  King Pos
 
-    int wKingRank = 0;
-    int wKingFile = 0;
-    int wKingPosEval = 0;
-    int bKingRank = 0;
-    int bKingFile = 0;
-    int bKingPosEval = 0;
-
-    int rank = 7;
+    int rank = 7; // rank starts at 7 as we iterate from top to bottom
     int file = 0;
 
     for(char piece : board.squares)
@@ -52,7 +49,7 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
                 // bkingval += whitePieceValues.at('K');
                 bKingRank = rank;
                 bKingFile = file;
-                bKingPosEval = positionalWhiteValues.at('K').at(pos);
+                bKingPos = pos;
             }
             else if(piece == 'p')
             {
@@ -72,7 +69,7 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
                 // wkingval += whitePieceValues.at(piece);
                 wKingRank = rank;
                 wKingFile = file;
-                wKingPosEval = positionalWhiteValues.at('K').at(mirrorSquare(pos));
+                wKingPos = pos;
             }
             else if(piece == 'P')
             {
@@ -95,11 +92,26 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
             --rank;
         }
     }
-    float wEndGame = endgameWeight(wmat);
+    float wEndGame = endgameWeight(wmat); // calculate endgame weight
     float bEndGame = endgameWeight(bmat);
 
-    weval += (int)wKingPosEval * (1 - wEndGame);
-    beval += (int)bKingPosEval * (1 - bEndGame);
+    // when in endgame use different table for King
+    if(wEndGame > 0)
+    {
+        weval += positionalWhiteValues.at('L').at(mirrorSquare(wKingPos));
+    }
+    else
+    {
+        beval += positionalWhiteValues.at('K').at(mirrorSquare(wKingPos));
+    }
+    if(bEndGame > 0)
+    {
+        beval += positionalWhiteValues.at('L').at(bKingPos);
+    }
+    else
+    {
+        beval += positionalWhiteValues.at('K').at(bKingPos);
+    }
 
     weval += endgameEval(wKingRank, wKingFile, wmat + wpawn, bKingRank, bKingFile, bmat + bpawn,
                          bEndGame);
@@ -109,6 +121,7 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
     return (weval + wmat + wpawn) - (beval + bmat + bpawn);
 }
 
+// Calculates Special Evaluation for endgame
 int Evaluation::endgameEval(int mrank, int mfile, int mmaterial, int ematerial, int erank,
                             int efile, float endgameWeight)
 {
@@ -117,17 +130,18 @@ int Evaluation::endgameEval(int mrank, int mfile, int mmaterial, int ematerial, 
         int eval = 0;
         int eDstCtrFile = max(3 - efile, efile - 4);
         int eDstCtrRank = max(3 - erank, erank - 4);
-        int ctrDst = eDstCtrRank + eDstCtrFile;
+        int eCtrDst = eDstCtrRank + eDstCtrFile;
 
-        eval += (10 * ctrDst);
+        eval += (10 *
+                 eCtrDst); // reward when enemy king is in corner (bigger center distance -> corner)
 
         int fileDst = abs(mfile - efile);
         int rankDst = abs(mrank - erank);
-        int kingDst = fileDst + rankDst; // manhattan distance
+        int kingDst = fileDst + rankDst; // orthogonal distance
 
-        eval += (14 - kingDst) * 4;
+        eval -= kingDst * 4; // reward getting the king closer to enemy king
 
-        return (int)(eval * 10 * endgameWeight);
+        return (int)(eval * endgameWeight);
     }
     return 0;
 }
@@ -141,6 +155,7 @@ int Evaluation::getWhitePieceValue(char piece)
     return whitePieceValues.at(toupper(piece));
 }
 
+// calculated endgame weight
 float Evaluation::endgameWeight(int materialCountWithoutPawns)
 
 {
@@ -176,4 +191,8 @@ const std::map<char, std::vector<int>> Evaluation::positionalWhiteValues = {
     {'K', {20,  30,  10,  0,   0,   10,  30,  20,  20,  20,  0,   0,   0,   0,   20,  20,
            -10, -20, -20, -20, -20, -20, -20, -10, -20, -30, -30, -40, -40, -30, -30, -20,
            -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30,
-           -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30}}};
+           -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30}},
+    {'L', {-50, -40, -30, -20, -20, -30, -40, -50, -30, -20, -10, 0,   0,   -10, -20, -30,
+           -30, -10, 20,  30,  30,  20,  -10, -30, -30, -10, 30,  40,  40,  30,  -10, -30,
+           -30, -10, 30,  40,  40,  30,  -10, -30, -30, -10, 20,  30,  30,  20,  -10, -30,
+           -30, -30, 0,   0,   0,   0,   -30, -30, -50, -30, -30, -30, -30, -30, -30, -50}}};
