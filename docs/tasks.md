@@ -26,9 +26,9 @@
 - [] Einranken (Dhawal nicht erledigt)
 
 ## nach 5. Meeting
-- [] Quiessence Search Deepening fix (Florian und Matthias)
-- [] Endgame Tactics (Matthias)
-- [] Openings verbessern (Tu und Florian)
+- [x] Quiessence Search Deepening fix (Florian und Matthias 23.06.21)
+- [x] Endgame Tactics (Matthias 29.06.21)
+- [x] Openings verbessern (Tu und Florian 25.06.21)
 - [] Performance measurements mit verschiedenen Depths  (Dhawal)
 - [] Elo ranking (Dhawal)
 - [] (Hashlookup)
