@@ -46,7 +46,6 @@ void ChessGame::gameHandler()
     while(1)
     {
         printBoardState();
-
         if(whitesMove)
         {
             do
@@ -62,21 +61,43 @@ void ChessGame::gameHandler()
             } while(!mv.TerseIn(&board, move.c_str()));
         }
         board.PlayMove(mv);
-        thc::TERMINAL evalPosition; // what does this code do?
-        bool legal = board.Evaluate(evalPosition);
-        bool mateWhite = (evalPosition == thc::TERMINAL_WCHECKMATE);
-        bool mateBlack = (evalPosition == thc::TERMINAL_BCHECKMATE);
 
-        // TODO check three fold repetition
-        // TODO draws
-        // check mate, stalemate
-        if(mateBlack || mateWhite)
+        thc::TERMINAL evalPosition;
+        board.Evaluate(evalPosition); // detect mate
+        thc::DRAWTYPE eval_draw;
+        board.IsDraw(board.white, eval_draw); // detect draw
+        if(eval_draw == thc::DRAWTYPE_50MOVE || eval_draw == thc::DRAWTYPE_REPITITION ||
+           eval_draw == thc::DRAWTYPE_INSUFFICIENT_AUTO)
+        {
+            printBoardState();
+            cout << "Final Move: " << move << endl;
+            cout << " Draw" << endl;
             break;
+        }
+        else if(evalPosition == 2 || evalPosition == -2)
+        {
+            printBoardState();
+            cout << "Final Move: " << move << endl;
+            cout << "Draw" << endl;
+            break;
+        }
+        else if(evalPosition == 1)
+        {
+            printBoardState();
+            cout << "Final Move: " << move << endl;
+            cout << "White won!" << endl;
+            break;
+        }
+        else if(evalPosition == -1)
+        {
+            printBoardState();
+            cout << "Final Move: " << move << endl;
+            cout << "Black won!" << endl;
+            break;
+        }
 
         whitesMove = !whitesMove;
     }
-    string winner = whitesMove ? "White" : "Black";
-    cout << winner << " won" << endl;
 }
 
 // temporary function

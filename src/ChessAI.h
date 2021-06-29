@@ -10,8 +10,9 @@
 #include <limits>
 
 #define SEARCH_DEPTH 4 // recommended 5 as 6 currently takes 30second + per move
-#define QUIESCENT_SEARCH_LIMIT 4
 #define OPENING_MOVE_LIMIT 3
+#define QUIESCENT_SEARCH_LIMIT 7 // recommended 7
+#define MAXEVAL 100000
 
 class ChessAI final : public AbstractChessPlayer
 {
@@ -23,7 +24,9 @@ class ChessAI final : public AbstractChessPlayer
 
   protected:
   private:
-    static int minMax(thc::ChessRules& board, const int depth, bool maximize, int alpha, int beta,
+    static int lastEval;
+
+    static int minMax(thc::ChessRules& board, const int depth, int alpha, int beta,
                       std::atomic<unsigned int>* nodesSearched);
     static int quiescentSearch(thc::ChessRules& board, int alpha, int beta,
                                std::atomic<unsigned int>* nodesSearched, int depth);

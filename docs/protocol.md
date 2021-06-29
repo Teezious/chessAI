@@ -136,3 +136,26 @@ Bis zum nächsten Meeting:
   - Performance measurements mit verschiedenen Depths
   - Elo ranking
 ---
+
+## 6. Meeting 
+Datum: 24.06.2021 12:00
+
+Dauer: 15min
+
+Art: mit Betreuer
+
+Anwesend: Sparr Matthias, Florian Rumpold, Tu Hao
+
+Abwesend: Chudal Dhawal
+
+Themen:
+  - kurzes Vorzeigen der neuen Features
+  - besprechen der letzten Schritte
+
+Entscheidungen:
+  - /
+  
+Bis zum nächsten Meeting:
+  - letzte Optimierungen 
+  - letzte Bugfixes
+---
