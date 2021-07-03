@@ -666,7 +666,7 @@ class ChessRules : public ChessPosition
     bool Evaluate(TERMINAL& score_terminal);
 
     // Is a square is attacked by enemy ?
-    bool AttackedSquare(Square square, bool enemy_is_white);
+    bool AttackedSquare(Square square, bool enemy_is_white) const;
 
     // Determine if an occupied square is attacked
     bool AttackedPiece(Square square);

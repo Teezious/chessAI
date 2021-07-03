@@ -1,11 +1,8 @@
-//
-// Created by Florian on 30.03.2021.
-//
 #ifndef CHESSAI_HUMANCHESSPLAYER_H
 #define CHESSAI_HUMANCHESSPLAYER_H
 #include "AbstractChessPlayer.h"
 #include <iostream>
-#include "../lib/thc/src/thc.h"
+#include "thc.h"
 
 class HumanChessPlayer final : public AbstractChessPlayer
 {

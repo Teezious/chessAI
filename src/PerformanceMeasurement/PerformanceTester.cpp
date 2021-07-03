@@ -3,7 +3,8 @@
 //
 
 #include "PerformanceTester.h"
-#include <ChessAI.h>
+#include "ChessAI.h"
+
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -53,7 +54,7 @@ void PerformanceTester::runPerformanceTest()
             auto start = high_resolution_clock::now();
             std::atomic<unsigned int> nodesSearched = 1;
             int eval;
-            string move = ai.multiThreadedSearch(board, &nodesSearched, &eval);
+            string move = ai.multiThreadedSearch(board, nodesSearched, eval);
             auto stop = high_resolution_clock::now();
             duration<double, milli> ms = stop - start;
 

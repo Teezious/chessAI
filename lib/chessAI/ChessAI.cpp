@@ -1,13 +1,8 @@
-//
-// Created by Florian on 30.03.2021.
-//
-
 #include "ChessAI.h"
 #include "Evaluation.h"
 #include "MoveSorter.h"
 #include "thread_pool.h"
 #include <assert.h>
-//#include <bits/stdc++.h>
 #include "MoveSorter.h"
 #include "Opening.h"
 #include <chrono>
@@ -90,7 +85,7 @@ string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
         auto start = high_resolution_clock::now();
         static std::atomic<unsigned int> nodesSearched = 0;
         int eval;
-        move = multiThreadedSearch(board, &nodesSearched, &eval);
+        move = multiThreadedSearch(board, nodesSearched, eval);
 
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<milliseconds>(stop - start);
@@ -105,7 +100,7 @@ string ChessAI::chooseMove(thc::ChessRules board, bool printResults)
 }
 
 std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
-                                         std::atomic<unsigned int>* nodesSearched, int* bestEval)
+                                         std::atomic<unsigned int>& nodesSearched, int& bestEval)
 {
     std::vector<bool> check;
     std::vector<bool> mate;
@@ -115,7 +110,7 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
     std::vector<thc::Move> legalMoves;
     bool isWhite = this->getIsWhite();
     board.GenLegalMoveList(legalMoves, check, mate, stalemate);
-    MoveSorter::sortMoves(legalMoves, board);
+    std::vector<unsigned int> indices = MoveSorter::sortMoves(legalMoves, board);
     ResultFinder::Ptr result; // result will be saved here
     int expectedMoveCount = legalMoves.size();
     int cores = (int)(cb::ThreadPool::GetNumLogicalCores()) * 2 / 3;
@@ -124,8 +119,9 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
     {
         result = std::make_shared<ResultFinder>(
             std::numeric_limits<int>::min()); // min initialisze for maximizer
-        for(const thc::Move& move : legalMoves)
+        for(const unsigned int& i : indices)
         {
+            const thc::Move& move = legalMoves[i];
             pool.Schedule([&]() {
                 thc::ChessRules b = board;
                 b.PlayMove(move); // push every possible move
@@ -133,7 +129,7 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
                     minMax(b, SEARCH_DEPTH - 1, result->getBestEval(),
                            std::numeric_limits<int>::max(), nodesSearched); // maybe mutex here
                 {
-                    std::lock_guard<std::mutex> lock{result->getMutex()};
+                    std::lock_guard lock{result->getMutex()};
                     {
                         if(moveEval > result->getBestEval()) // check if new best
                         {
@@ -150,16 +146,17 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
     else
     {
         result = std::make_shared<ResultFinder>(
-            std::numeric_limits<int>::max()); // max initialisze for minimizer
-        for(const thc::Move& move : legalMoves)
+            std::numeric_limits<int>::max()); // max initialize for minimizer
+        for(const unsigned int& i : indices)
         {
+            const thc::Move& move = legalMoves[i];
             pool.Schedule([&]() {
                 thc::ChessRules b = board;
                 b.PlayMove(move);
                 int moveEval = minMax(b, SEARCH_DEPTH - 1, std::numeric_limits<int>::min(),
                                       result->getBestEval(), nodesSearched); // maybe mutex here
                 {
-                    std::lock_guard<std::mutex> lock{result->getMutex()};
+                    std::lock_guard lock{result->getMutex()};
                     {
                         if(moveEval < result->getBestEval()) // check if new best
                         {
@@ -173,19 +170,19 @@ std::string ChessAI::multiThreadedSearch(thc::ChessRules board,
         }
     }
 
-    pool.Wait(); // wait for all threds to finish
+    pool.Wait(); // wait for all threads to finish
     while(result->getMoveCount() != expectedMoveCount)
     {
         this_thread::sleep_for(5ms);
     }
-    *bestEval = result->getBestEval();
+    bestEval = result->getBestEval();
     lastEval = abs(result->getBestEval()); // save last eval
     return result->getBestMove().TerseOut();
 }
 
 // search reduced search tree by only checking for checks and captures
 int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
-                             std::atomic<unsigned int>* nodesSearched, int depth)
+                             std::atomic<unsigned int>& nodesSearched, int depth)
 {
     thc::DRAWTYPE eval_draw;
     board.IsDraw(board.white, eval_draw); // detect draw
@@ -226,7 +223,7 @@ int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
     {
         return standPat;
     }
-    (*nodesSearched)++;
+    nodesSearched++;
 
     alpha = max(alpha, standPat);
 
@@ -238,10 +235,10 @@ int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
     int i = 0;
     board.GenLegalMoveList(moves, check, mate, stalemate);
 
-    MoveSorter::sortMoves(moves, board);
-    for(const thc::Move& mv : moves)
+    std::vector<unsigned int> indices = MoveSorter::sortMoves(moves, board);
+    for(const unsigned int& i : indices)
     {
-        // skip moves that have no capture and no check
+        const thc::Move& mv = moves[i];
         if(mv.capture == 32 && check[i] == false)
             continue;
 
@@ -252,16 +249,13 @@ int ChessAI::quiescentSearch(thc::ChessRules& board, int alpha, int beta,
         if(score >= beta)
             return beta;
         alpha = max(alpha, score);
-        ++i;
     }
     return alpha;
 }
 
 int ChessAI::minMax(thc::ChessRules& board, const int depth, int alpha, int beta,
-                    std::atomic<unsigned int>* nodesSearched)
+                    std::atomic<unsigned int>& nodesSearched)
 {
-    // TODO detect check mate
-
     thc::DRAWTYPE eval_draw;
     board.IsDraw(board.white, eval_draw); // detect draw
     if(eval_draw == thc::DRAWTYPE_50MOVE || eval_draw == thc::DRAWTYPE_REPITITION ||
@@ -296,7 +290,7 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, int alpha, int beta
         return quiescentSearch(board, alpha, beta, nodesSearched, QUIESCENT_SEARCH_LIMIT);
     }
 
-    (*nodesSearched)++;
+    nodesSearched++;
     std::vector<thc::Move> legalMoves;
     std::vector<bool> check;
     std::vector<bool> mate;
@@ -305,9 +299,10 @@ int ChessAI::minMax(thc::ChessRules& board, const int depth, int alpha, int beta
     int bestEval = board.white ? numeric_limits<int>::min() : numeric_limits<int>::max();
 
     board.GenLegalMoveList(legalMoves, check, mate, stalemate);
-    MoveSorter::sortMoves(legalMoves, board);
-    for(const thc::Move& move : legalMoves)
+    std::vector<unsigned int> indices = MoveSorter::sortMoves(legalMoves, board);
+    for(const unsigned int& i : indices)
     {
+        const thc::Move& move = legalMoves[i];
         thc::ChessRules b = board;
         b.PlayMove(move);
         int val;

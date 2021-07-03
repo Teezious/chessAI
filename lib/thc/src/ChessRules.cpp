@@ -1270,7 +1270,7 @@ bool ChessRules::AttackedPiece(Square square)
 /****************************************************************************
  * Is a square is attacked by enemy ?
  ****************************************************************************/
-bool ChessRules::AttackedSquare(Square square, bool enemy_is_white)
+bool ChessRules::AttackedSquare(Square square, bool enemy_is_white) const
 {
     Square dst;
     const lte* ptr = (enemy_is_white ? attacks_black_lookup[square] : attacks_white_lookup[square]);

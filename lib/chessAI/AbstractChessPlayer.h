@@ -1,7 +1,4 @@
-//
-// Created by Florian on 30.03.2021.
-//
-#include "../lib/thc/src/thc.h"
+#include "../thc/src/thc.h"
 
 #ifndef CHESSAI_ABSTRACTCHESSPLAYER_H
 #define CHESSAI_ABSTRACTCHESSPLAYER_H

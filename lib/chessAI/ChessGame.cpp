@@ -1,6 +1,3 @@
-//
-// Created by Florian on 30.03.2021.
-//
 #include "ChessGame.h"
 #include "AbstractChessPlayer.h"
 #include "ChessAI.h"
@@ -100,7 +97,7 @@ void ChessGame::gameHandler()
     }
 }
 
-// temporary function
+// print board
 void ChessGame::printBoardState()
 {
     int i = 0;

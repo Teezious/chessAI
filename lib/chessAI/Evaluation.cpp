@@ -1,7 +1,3 @@
-//
-// Created by Florian on 31.03.2021.
-//
-
 #include "Evaluation.h"
 #include <algorithm>
 #include <cmath>
@@ -16,6 +12,8 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
     int bmat = 0; // black material
     int bpawn = 0; // black pawn material
     int wpawn = 0; // white pawn material
+    int wkingval = 0;
+    int bkingval = 0;
     int weval = 0; // white eval
     int beval = 0; // black eval
 
@@ -46,7 +44,7 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
         {
             if(piece == 'k')
             {
-                // bkingval += whitePieceValues.at('K');
+                bkingval += whitePieceValues.at('K');
                 bKingRank = rank;
                 bKingFile = file;
                 bKingPos = pos;
@@ -66,7 +64,7 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
         {
             if(piece == 'K')
             {
-                // wkingval += whitePieceValues.at(piece);
+                wkingval += whitePieceValues.at(piece);
                 wKingRank = rank;
                 wKingFile = file;
                 wKingPos = pos;
@@ -96,7 +94,7 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
     float bEndGame = endgameWeight(bmat);
 
     // when in endgame use different table for King
-    if(wEndGame > 0)
+    if(wEndGame > 0.3)
     {
         weval += positionalWhiteValues.at('L').at(mirrorSquare(wKingPos));
     }
@@ -104,7 +102,7 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
     {
         beval += positionalWhiteValues.at('K').at(mirrorSquare(wKingPos));
     }
-    if(bEndGame > 0)
+    if(bEndGame > 0.3)
     {
         beval += positionalWhiteValues.at('L').at(bKingPos);
     }

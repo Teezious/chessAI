@@ -1,11 +1,7 @@
-//
-// Created by Florian on 31.03.2021.
-//
-
 #ifndef CHESSAI_EVALUATION_H
 #define CHESSAI_EVALUATION_H
 
-#include "../lib/thc/src/thc.h"
+#include "thc.h"
 #include <map>
 
 class Evaluation final
