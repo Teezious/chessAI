@@ -94,7 +94,7 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
     float bEndGame = endgameWeight(bmat);
 
     // when in endgame use different table for King
-    if(wEndGame > 0.3)
+    if(wEndGame > ENDGAME_THRESHHOLD)
     {
         weval += positionalWhiteValues.at('L').at(mirrorSquare(wKingPos));
     }
@@ -102,7 +102,7 @@ int Evaluation::evaluateBoardState(thc::ChessRules board)
     {
         beval += positionalWhiteValues.at('K').at(mirrorSquare(wKingPos));
     }
-    if(bEndGame > 0.3)
+    if(bEndGame > ENDGAME_THRESHHOLD)
     {
         beval += positionalWhiteValues.at('L').at(bKingPos);
     }

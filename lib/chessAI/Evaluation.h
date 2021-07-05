@@ -4,6 +4,8 @@
 #include "thc.h"
 #include <map>
 
+#define ENDGAME_THRESHHOLD 0.3
+
 class Evaluation final
 {
   public:

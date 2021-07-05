@@ -9,7 +9,7 @@
 #include <iostream>
 #include <limits>
 
-#define SEARCH_DEPTH 5// recommended 5
+#define SEARCH_DEPTH 5 // recommended 5
 #define OPENING_MOVE_LIMIT 4
 #define QUIESCENT_SEARCH_LIMIT 10 // recommended 10
 #define MAXEVAL 100000

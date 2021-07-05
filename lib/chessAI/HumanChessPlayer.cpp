@@ -9,4 +9,3 @@ std::string HumanChessPlayer::chooseMove(thc::ChessRules, bool printResults)
     std::cin >> move;
     return move;
 }
-

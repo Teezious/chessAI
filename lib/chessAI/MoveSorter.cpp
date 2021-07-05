@@ -7,7 +7,7 @@
 using namespace std;
 // returns vector with sorted indeces
 std::vector<unsigned int> MoveSorter::sortMoves(const vector<thc::Move>& moves,
-                                                const thc::ChessRules& board,const  bool insertion)
+                                                const thc::ChessRules& board, const bool insertion)
 {
     if(moves.empty())
         return {};
@@ -51,13 +51,16 @@ std::vector<unsigned int> MoveSorter::sortMoves(const vector<thc::Move>& moves,
 
         moveScores.push_back(moveScore);
     }
-    if(insertion){
-            return insertionSort(moves, moveScores);
-    }else{
-            std::vector<unsigned int> indices ( moves.size() );
-            std::iota(indices.begin(), indices.end(), 0);
-            quickSort(indices, moveScores, 0, moves.size() - 1);
-            return indices;
+    if(insertion)
+    {
+        return insertionSort(moves, moveScores);
+    }
+    else
+    {
+        std::vector<unsigned int> indices(moves.size());
+        std::iota(indices.begin(), indices.end(), 0);
+        quickSort(indices, moveScores, 0, moves.size() - 1);
+        return indices;
     }
     return {};
 }
@@ -65,7 +68,7 @@ std::vector<unsigned int> MoveSorter::sortMoves(const vector<thc::Move>& moves,
 std::vector<unsigned int> MoveSorter::insertionSort(const vector<thc::Move>& moves,
                                                     std::vector<int> moveScores)
 {
-    std::vector<unsigned int> indices ( moves.size() );
+    std::vector<unsigned int> indices(moves.size());
     std::iota(indices.begin(), indices.end(), 0);
 
     if(moves.empty() || moveScores.empty())
@@ -89,10 +92,9 @@ std::vector<unsigned int> MoveSorter::insertionSort(const vector<thc::Move>& mov
     return indices;
 }
 
-void MoveSorter::quickSort(std::vector<unsigned int>& indices,
-                                                std::vector<int> moveScores, int low, int high)
+void MoveSorter::quickSort(std::vector<unsigned int>& indices, std::vector<int> moveScores, int low,
+                           int high)
 {
-
     if(low < high)
     {
         int p = partition(indices, moveScores, low, high);
@@ -102,7 +104,7 @@ void MoveSorter::quickSort(std::vector<unsigned int>& indices,
 }
 
 inline int MoveSorter::partition(std::vector<unsigned int>& indices, std::vector<int>& moveScores,
-                          int low, int high)
+                                 int low, int high)
 {
     // assert(0 <= high && high < moveScores.size());
     // assert(0 <= low && low < moveScores.size());
@@ -114,12 +116,11 @@ inline int MoveSorter::partition(std::vector<unsigned int>& indices, std::vector
         if(moveScores[j] >= score)
         {
             i++;
-          std::swap(moveScores[j], moveScores[i]);
-          std::swap(indices[j], indices[i]);
+            std::swap(moveScores[j], moveScores[i]);
+            std::swap(indices[j], indices[i]);
         }
     }
-    std::swap(moveScores[i+1], moveScores[high]);
-    std::swap(indices[i+1], indices[high]);
+    std::swap(moveScores[i + 1], moveScores[high]);
+    std::swap(indices[i + 1], indices[high]);
     return i + 1;
 }
-

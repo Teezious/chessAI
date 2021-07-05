@@ -9,7 +9,6 @@ class Opening
 {
   public:
     static std::string getOpeningMove(thc::ChessRules& board);
-
 };
 
 #endif // CHESSAI_OPENING_H

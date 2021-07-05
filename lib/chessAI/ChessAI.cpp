@@ -1,10 +1,9 @@
 #include "ChessAI.h"
 #include "Evaluation.h"
 #include "MoveSorter.h"
+#include "Opening.h"
 #include "thread_pool.h"
 #include <assert.h>
-#include "MoveSorter.h"
-#include "Opening.h"
 #include <chrono>
 #include <iostream>
 #include <limits>

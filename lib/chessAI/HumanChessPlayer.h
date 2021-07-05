@@ -1,8 +1,8 @@
 #ifndef CHESSAI_HUMANCHESSPLAYER_H
 #define CHESSAI_HUMANCHESSPLAYER_H
 #include "AbstractChessPlayer.h"
-#include <iostream>
 #include "thc.h"
+#include <iostream>
 
 class HumanChessPlayer final : public AbstractChessPlayer
 {
